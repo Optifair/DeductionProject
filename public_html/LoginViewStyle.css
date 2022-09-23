@@ -10,21 +10,19 @@
 
 #app {
     position: fixed;
-    width: 40%;
-    height: 60%;
+    width: fit-content;
+    height: fit-content;
     text-align: center;
     padding: 15px;
-    border: 3px solid #0000cc;
+    border: 3px solid #7582f8fd;
     border-radius: 10px;
-    color: #0000cc;
-    position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
     margin: auto;
     background: #fff;
-    font-size: x-large;
+
 }
 
 #shadow:target {
@@ -34,17 +32,30 @@
 .close {
     position: absolute;
     display: inline-block;
-    border: 1px solid #0000cc;
-    color: #0000cc;
-    padding: 0 12px;
-    right: 0;
-    margin: 10px;
-    text-decoration: none;
-    background: #f2f2f2;
-    font-size: 14pt;
+    color: #7582f8fd;
+    height: 10%;
+    width: 10%;
+    top: 2%;
+    right: 2%;
+    margin: 0;
+    text-decoration: transparent;
+    font-size: 3vw;
     cursor: pointer;
 }
 
-.close:hover {
-    background: #e6e6ff;
+.columnGrid{
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+}
+
+.columnGrid > *{
+    font-size: 1.5vw;
+    margin: 1%;
+}
+
+.columnGrid > label{
+    margin: 0;
+    color: #0000cc;
 }

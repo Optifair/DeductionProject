@@ -7,99 +7,13 @@
 </head>
 <body>
     <div id="shadow">
-        <a href="#" class="close">x</a>
-
         <div id="app">
 
             <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
             <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
             <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-            <script type="text/babel">
-                class UserForm extends React.Component {
-                    constructor(props) {
-                        super(props);
-                        var Login = props.Login;
-                        var LoginIsValid = this.validateLogin(Login);
-                        var Password = props.Password;
-                        var PasswordIsValid = this.validatePassword(Password);
-                        this.state = {Login: Login, Password: Password, LoginValid: LoginIsValid, PasswordValid: PasswordIsValid};
-
-                        this.onLoginChange = this.onLoginChange.bind(this);
-                        this.onPasswordChange = this.onPasswordChange.bind(this);
-                        this.handleSubmit = this.handleSubmit.bind(this);
-                    }
-                    validatePassword(Password){
-                        var valid = Password.length>5;
-                        return valid;
-                    }
-                    validateLogin(Login){
-                        var valid =Login.length>2;
-                        return valid;
-                    }
-                    onPasswordChange(e) {
-                        var val = e.target.value;
-                        var valid = this.validatePassword(val);
-                        this.setState({Password: val, PasswordValid: valid});
-                    }
-                    onLoginChange(e) {
-                        var val = e.target.value;
-                        console.log(val);
-                        var valid = this.validateLogin(val);
-                        this.setState({Login: val, LoginValid: valid});
-                    }
-
-                    handleSubmit(e) {
-                        e.preventDefault();
-                        if(this.state.LoginValid ===true && this.state.PasswordValid===true){
-                            alert(`Login: ${this.state.Login} Password: ${this.state.Password}`);
-                        }
-                        else if (this.state.LoginValid ===false )
-                        {
-                            if (this.state.PasswordValid===false)
-                            {
-                                alert("Login should be more than 2 symbols and Password should be more than 5 symbols.");
-                            }
-                            else
-                            {
-                                alert("Login should be more than 2 symbols.");
-                            }
-                        }
-                        else if (this.state.PasswordValid ===false )
-                        {
-                            alert("Password should be more than 5 symbols.");
-                        }
-                    }
-
-                    render() {
-                        // цвет границы для поля для ввода имени
-                        var LoginColor = this.state.LoginValid===true?"green":"red";
-                        // цвет границы для поля для ввода Passwordа
-                        var PasswordColor = this.state.PasswordValid===true?"green":"red";
-                        return (
-                            <form onSubmit={this.handleSubmit}>
-                                <p>
-                                    <label>Login:</label><br />
-                                    <input type="text" value={this.state.Login}
-                                           onChange={this.onLoginChange} style={{borderColor:LoginColor}} />
-                                </p>
-                                <p>
-                                    <label>Password:</label><br />
-                                    <input type="password" value={this.state.Password}
-                                           onChange={this.onPasswordChange}  style={{borderColor:PasswordColor}} />
-                                </p>
-                                <input type="submit" value="Отправить" />
-                            </form>
-                        );
-                    }
-                }
-                ReactDOM.createRoot(
-                    document.getElementById("app")
-                )
-                    .render(
-                        <UserForm Login="" Password="" />
-                    );
-            </script>
+            <script type="text/babel" src="LoginViewScript.js"></script>
 
         </div>
     </div>
