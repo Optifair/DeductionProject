@@ -1,4 +1,5 @@
 /xdebug.ini
+/frontend/node_modules
 /.idea/workspace.xml
 /.idea/vcs.xml
 /.idea/inspectionProfiles/Project_Default.xml
