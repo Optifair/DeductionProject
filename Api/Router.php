@@ -3,9 +3,7 @@
 namespace Api;
 
 use Api\Controllers;
-
-require('controllers/PostsController.php');
-use services\DB;
+use Services\DB;
 
 class Router
 {
@@ -21,7 +19,7 @@ class Router
                 $className = $routeElement[0];
                 $function =  $routeElement[1];
 
-                $class = "api\controllers\\$className";
+                $class = "Api\Controllers\\$className";
                 $object = new $class();
                 $object->$function();
             }

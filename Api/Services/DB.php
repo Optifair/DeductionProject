@@ -1,6 +1,6 @@
 <?php
 
-namespace services;
+namespace Api\Services;
 
 use mysqli;
 

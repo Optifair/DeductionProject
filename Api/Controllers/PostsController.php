@@ -2,7 +2,7 @@
 
 namespace Api\Controllers;
 
-use Services\DB;
+use Api\Services\DB;
 
 class PostsController
 {
@@ -29,6 +29,8 @@ class PostsController
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+
+
 
 
             $url = "https://jsonplaceholder.typicode.com/photos";
@@ -91,6 +93,7 @@ class PostsController
         try {
             header("Access-Control-Allow-Origin: *");
             header("Access-Control-Allow-Headers: *");
+
 
             $perPage = $_GET['limit'] ?? 5;
             $pageNumber = $_GET['offset'] ?? 0;
@@ -157,6 +160,7 @@ class PostsController
         header('Access-Control-Allow-Credentials: true');
         header('Access-Control-Max-Age: 86400');
         header("Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS");
+
 
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {

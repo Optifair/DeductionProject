@@ -1,8 +1,7 @@
 <?php
 
-require "api/services/DB.php";
-require "api/Router.php";
-use services\DB;
+require 'Autoloader.php';
+use Api\Services\DB;
 use Api\Router;
 
 $current_link = $_SERVER['REQUEST_URI'];
