@@ -2,28 +2,55 @@
 
 namespace Api\Services;
 
-use mysqli;
+use PDO;
+use PDOException;
 
 class DB
 {
-    public $db_host = 'localhost';
-    public $db_user = 'test';
-    public $db_password = 'пароль';
-    public $db_database = 'deductionproject';
+    private static $connection = null;
 
-    public function database()
+    public static function connect(): array
     {
-        $conn = new mysqli(
-            $this->db_host,
-            $this->db_user,
-            $this->db_password,
-            $this->db_database
-        );
-
-        if ($conn->connect_error) {
-            die("Connection failed ".$conn->connect_error);
+        if (null != self::$connection) {
+            return [true, 'Already connect'];
         }
-
-        return $conn;
+        try {
+            self::$connection = new PDO('mysql:host=' . self::$db_host . ';dbname=' . self::$db_database, self::$db_user, self::$db_password);
+            self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return [true, 'Connection successful'];
+        } catch (PDOException $e) {
+            return [false, 'Connection failed' . $e->getMessage()];
+        }
     }
+
+    public static function closeConnection()
+    {
+        self::$connection = null;
+    }
+
+    public static function checkConnection(): bool
+    {
+        $checkedCon = true;
+        if (null === self::$connection) {
+            $checkedCon = false;
+        }
+        return $checkedCon;
+    }
+
+
+    public static function executeQuery(string $query): \PDOStatement
+    {
+        self::connect();
+
+        $statement = DB::$connection->prepare($query);
+        $statement->execute();
+
+        $statement->setFetchMode(PDO::FETCH_ASSOC);
+        return $statement;
+    }
+
+    public static $db_host = 'localhost';
+    public static $db_user = 'test';
+    public static $db_password = 'пароль';
+    public static $db_database = 'deductionproject';
 }

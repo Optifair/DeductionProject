@@ -37,7 +37,7 @@ class Router
         $urls = [
             '/api/posts' => ['PostsController@getPostsFromDatabase'],
             '/api/searchResult' => ['PostsController@getSearchResults'],
-            '/api/getCurrentTopic' => ['PostsController@getCurrentTopic'],
+            '/api/getCurrentPost' => ['PostsController@getCurrentPost'],
         ];
 
         $availableRoutes = array_keys($urls);
