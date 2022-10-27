@@ -1,8 +1,10 @@
 import React from 'react';
 import SubscribeIcon from '@mui/icons-material/Bookmarks';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Avatar, Box, Card, CardActions, CardContent, CardHeader, CardMedia, Collapse, Divider, IconButton, IconButtonProps, styled, Typography } from '@mui/material';
+import { Avatar, Box, Card, CardActions, CardContent, CardHeader, CardMedia, Collapse, Divider, IconButton, IconButtonProps, List, styled, Typography } from '@mui/material';
 import { red } from '@mui/material/colors';
+import Comment from './Comment';
+
 
 type Params = {
     id: string;
@@ -74,13 +76,13 @@ export default function PostCard ( { id, title, content, userId, image }: Params
                     />
                 </Box>
                 <Divider />
-                <CardContent>
-                    <Typography paragraph>
-                        Main Comment
+                <CardContent sx={ { padding: '0' } }>
+                    <Typography paragraph padding={ '0px' }>
+                        <Comment key={ '0' } id={ '0' } content={ 'Best Comment' } userId={ '1' }></Comment>
                     </Typography>
                 </CardContent>
-                <CardActions disableSpacing>
-                    <Box alignItems={ 'center' } margin={ 'auto' }>
+                <CardActions disableSpacing sx={ { padding: '0' } }>
+                    <Box alignItems={ 'center' } margin={ 'auto' } padding={ '0px' }>
                         <ExpandMore
                             expand={ expanded }
                             onClick={ handleExpandClick }
@@ -90,11 +92,14 @@ export default function PostCard ( { id, title, content, userId, image }: Params
                         </ExpandMore>
                     </Box>
                 </CardActions>
-                <Collapse in={ expanded } timeout="auto" unmountOnExit>
-                    <CardContent>
-                        <Typography paragraph>
-                            Other Comments Comments Comments
-                        </Typography>
+                <Collapse in={ expanded } timeout="auto" unmountOnExit sx={ { padding: '0' } }>
+                    <Divider />
+                    <CardContent sx={ { padding: '0' } }>
+                        <List>
+                            <Comment key={ '1' } id={ '1' } content={ 'comment 1' } userId={ '1' }></Comment>
+                            <Comment key={ '2' } id={ '2' } content={ 'comment 3' } userId={ '1' }></Comment>
+                            <Comment key={ '3' } id={ '3' } content={ 'comment 3' } userId={ '1' }></Comment>
+                        </List>
                     </CardContent>
                 </Collapse>
             </Box>
