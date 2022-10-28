@@ -10,6 +10,7 @@ class QueryConverter
         string $table,
         array $columns,
         string $where,
+        string $like,
         string $groupBy,
         array $orderBy,
         int $limit,
@@ -21,6 +22,11 @@ class QueryConverter
         if (!empty($where)) {
             $queryString .= " WHERE $where";
         }
+
+        if (!empty($like)) {
+            $queryString .= " WHERE title OR content LIKE $like";
+        }
+
         if (!empty($groupBy)) {
             if ($numOfJoins > 0) {
                 $groupBy = "$groupBy";
@@ -41,6 +47,7 @@ class QueryConverter
         if (!empty($offset)) {
             $queryString .= " OFFSET $offset";
         }
+
         $queryString .= ';';
         return $queryString;
     }

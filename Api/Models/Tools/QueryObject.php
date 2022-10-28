@@ -11,6 +11,7 @@ class QueryObject
     private string $query;
     private string $table;
     private array $columns;
+    private string $like;
     private string $where;
     private string $groupBy;
     private array $orderBy;
@@ -27,6 +28,7 @@ class QueryObject
         $this->query = '';
         $this->table = '';
         $this->columns = ['*'];
+        $this->like = '';
         $this->where = '';
         $this->groupBy = '';
         $this->orderBy = [];
@@ -45,6 +47,7 @@ class QueryObject
                 $this->table,
                 $this->columns,
                 $this->where,
+                $this->like,
                 $this->groupBy,
                 $this->orderBy,
                 $this->limit,
@@ -232,6 +235,17 @@ class QueryObject
         }
         return $this;
     }
+
+    public function like(string $key): QueryObject
+    {
+        if (!empty($this->like)) {
+            $this->like .=  "'%$key%'";
+        } else {
+            $this->like = "'%$key%'";
+        }
+        return $this;
+    }
+
 
     public function limit(int $limit): QueryObject
     {

@@ -21,13 +21,28 @@ class PostsController extends Controller
         echo json_encode($postsArray, JSON_PRETTY_PRINT);
     }
 
+    public function searchPostsByKey()
+    {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+
+        $key = $_GET['key'];
+
+        $postsArray['posts'] = PostRepository::searchPostsByKey($key);
+
+        echo json_encode($postsArray, JSON_PRETTY_PRINT);
+    }
+
     public function getCurrentPost()
     {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: *");
+
         self::getHeaders();
         $id = $_GET['id'] ?? null;
 
-        $post = PostRepository::getCurrentPost($id);
+        $postsArray['posts'] = PostRepository::getCurrentPost($id);
 
-        echo json_encode($post, JSON_PRETTY_PRINT);
+        echo json_encode($postsArray, JSON_PRETTY_PRINT);
     }
 }

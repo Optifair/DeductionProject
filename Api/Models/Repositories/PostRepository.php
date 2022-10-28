@@ -39,4 +39,20 @@ class PostRepository extends Repository
         $post = self::executeQuery($query)[0];
         return $post;
     }
+
+    public static function searchPostsByKey($key): array
+    {
+        self::prepareExecution();
+        $query = QO::select()->table('posts')->like($key);
+        $query->columns(
+            'id',
+            'user_id',
+            'title',
+            'content',
+            'image'
+        );
+
+        $posts = self::executeQuery($query);
+        return $posts;
+    }
 }
