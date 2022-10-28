@@ -1,9 +1,10 @@
 import React from 'react';
 import SubscribeIcon from '@mui/icons-material/Bookmarks';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Avatar, Box, Card, CardActions, CardContent, CardHeader, CardMedia, Collapse, Divider, IconButton, IconButtonProps, List, styled, Typography } from '@mui/material';
+import { Avatar, Box, Card, CardActions, CardContent, CardHeader, CardMedia, Collapse, Dialog, DialogContent, DialogProps, Divider, IconButton, IconButtonProps, Link, List, styled, Typography } from '@mui/material';
 import { red } from '@mui/material/colors';
 import Comment from './Comment';
+import PostWindow from './PostWindow';
 
 
 type Params = {
@@ -34,6 +35,19 @@ const ExpandMore = styled( ( props: ExpandMoreProps ) =>
 
 export default function PostCard ( { id, title, content, userId, image }: Params )
 {
+    const [ open, setOpen ] = React.useState( false );
+    const [ scroll, setScroll ] = React.useState<DialogProps[ 'scroll' ]>( 'paper' );
+
+    const handleClickOpen = ( scrollType: DialogProps[ 'scroll' ] ) => () =>
+    {
+        setOpen( true );
+        setScroll( scrollType );
+    };
+
+    const handleClose = () =>
+    {
+        setOpen( false );
+    };
 
     const [ expanded, setExpanded ] = React.useState( false );
 
@@ -43,7 +57,7 @@ export default function PostCard ( { id, title, content, userId, image }: Params
     };
 
     return (
-        <Card sx={ { maxWidth: '60%', minWidth: 500, borderRadius: '25px' } }>
+        <Card sx={ { maxWidth: '50%', minWidth: 500, borderRadius: '25px' } }>
             <Box padding={ '10px' }>
                 <CardHeader sx={ { paddingBottom: '0px', fontSize: 'large' } }
                     avatar={
@@ -61,14 +75,31 @@ export default function PostCard ( { id, title, content, userId, image }: Params
                         </Typography>
                     }
                 />
-                <CardContent sx={ { paddingTop: '5px' } }>
-                    <Typography textAlign={ 'center' } variant="h5" paddingBottom={ '10px' }>
-                        { title }
-                    </Typography>
-                    <Typography variant="body1">
-                        { content }
-                    </Typography>
-                </CardContent>
+                <Dialog
+                    open={ open }
+                    onClose={ handleClose }
+                    maxWidth={ 'md' }
+                    PaperProps={ {
+                        style: {
+                            backgroundImage: 'none'
+                        },
+                    } }
+                >
+                    <DialogContent dividers={ scroll === 'paper' } style={ { padding: '0px 0px 0px 0px' } }
+                    >
+                        <PostWindow id={ id } title={ title } content={ content } userId={ userId } image={ image } />
+                    </DialogContent>
+                </Dialog>
+                <Link onClick={ handleClickOpen( 'body' ) } underline='none' color={ 'whitesmoke' }>
+                    <CardContent sx={ { paddingTop: '5px' } }>
+                        <Typography textAlign={ 'center' } variant="h5" paddingBottom={ '10px' }>
+                            { title }
+                        </Typography>
+                        <Typography variant="body1">
+                            { content }
+                        </Typography>
+                    </CardContent>
+                </Link>
                 <Box margin={ 'auto' } maxWidth="70%" paddingBottom={ '20px' }>
                     <CardMedia
                         component="img"
@@ -81,6 +112,15 @@ export default function PostCard ( { id, title, content, userId, image }: Params
                         <Comment key={ '0' } id={ '0' } content={ 'Best Comment' } userId={ '1' }></Comment>
                     </Typography>
                 </CardContent>
+                <Collapse in={ expanded } timeout="auto" unmountOnExit sx={ { padding: '0' } }>
+                    <CardContent sx={ { padding: '0' } }>
+                        <List sx={ { padding: '0' } }>
+                            <Comment key={ '1' } id={ '1' } content={ 'comment 1' } userId={ '1' }></Comment>
+                            <Comment key={ '2' } id={ '2' } content={ 'comment 3' } userId={ '1' }></Comment>
+                            <Comment key={ '3' } id={ '3' } content={ 'comment 3' } userId={ '1' }></Comment>
+                        </List>
+                    </CardContent>
+                </Collapse>
                 <CardActions disableSpacing sx={ { padding: '0' } }>
                     <Box alignItems={ 'center' } margin={ 'auto' } padding={ '0px' }>
                         <ExpandMore
@@ -92,16 +132,6 @@ export default function PostCard ( { id, title, content, userId, image }: Params
                         </ExpandMore>
                     </Box>
                 </CardActions>
-                <Collapse in={ expanded } timeout="auto" unmountOnExit sx={ { padding: '0' } }>
-                    <Divider />
-                    <CardContent sx={ { padding: '0' } }>
-                        <List>
-                            <Comment key={ '1' } id={ '1' } content={ 'comment 1' } userId={ '1' }></Comment>
-                            <Comment key={ '2' } id={ '2' } content={ 'comment 3' } userId={ '1' }></Comment>
-                            <Comment key={ '3' } id={ '3' } content={ 'comment 3' } userId={ '1' }></Comment>
-                        </List>
-                    </CardContent>
-                </Collapse>
             </Box>
         </Card >
     );

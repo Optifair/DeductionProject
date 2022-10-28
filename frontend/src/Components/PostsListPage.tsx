@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Stack } from '@mui/system';
 import PostCard from './PostCard';
+import { Box, Button } from '@mui/material';
 
 export default function PostsListPage ()
 {
@@ -8,7 +9,7 @@ export default function PostsListPage ()
   const [ posts, setPosts ] = useState( [] );
 
 
-  const pageSize = 5;
+  var pageSize = 10;
   const offset = 0;
 
   async function fetchPosts ( pageSize: any, offset: any )
@@ -18,6 +19,11 @@ export default function PostsListPage ()
     );
 
     return await res.json();
+  }
+
+  async function loadNewPosts ()
+  {
+    pageSize += 5;
   }
 
   useEffect( () =>
@@ -30,12 +36,15 @@ export default function PostsListPage ()
   }, [ pageSize, offset ] )
 
   return (
-    <Stack spacing={ 4 } className="s" alignItems={ 'center' } paddingTop={ '90px' }>
-      { posts.map( function ( { id, title, content, user_id, image } )
-      {
-        return <PostCard key={ id } id={ id } title={ title } content={ content } userId={ user_id }
-          image={ image } />
-      } ) }
+    <Stack spacing={ 3 } alignItems={ 'center' } paddingBottom={ '30px' }>
+      <Stack spacing={ 4 } className="s" alignItems={ 'center' } paddingTop={ '90px' }>
+        { posts.map( function ( { id, title, content, user_id, image } )
+        {
+          return <PostCard key={ id } id={ id } title={ title } content={ content } userId={ user_id }
+            image={ image } />
+        } ) }
+      </Stack>
+      <Button onClick={ loadNewPosts } variant="outlined" style={ { border: '1px solid ghostwhite', color: 'ghostwhite' } }>Show more</Button>
     </Stack>
   );
 
