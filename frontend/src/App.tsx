@@ -1,4 +1,3 @@
-import React from 'react';
 import Header from './Components/Header';
 import
 {
@@ -10,6 +9,7 @@ import PostsListPage from './Components/PostsListPage';
 import { Box } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import NotFoundPage from './Components/NotFoundPage';
 
 const darkTheme = createTheme( {
   palette: {
@@ -21,6 +21,7 @@ export default function App ()
 {
   const routes = [
     { path: '/', element: <PostsListPage /> },
+    { path: '/404', element: <NotFoundPage /> },
   ];
 
   return (
