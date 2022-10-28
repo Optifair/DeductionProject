@@ -10,6 +10,7 @@ import { Box } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import NotFoundPage from './Components/NotFoundPage';
+import SearchPage from './Components/SearchPage';
 
 const darkTheme = createTheme( {
   palette: {
@@ -21,6 +22,7 @@ export default function App ()
 {
   const routes = [
     { path: '/', element: <PostsListPage /> },
+    { path: '/search/:keyWord', element: <SearchPage /> },
     { path: '/404', element: <NotFoundPage /> },
   ];
 

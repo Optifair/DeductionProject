@@ -8,8 +8,9 @@ import InputBase from '@mui/material/InputBase';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
 import { AccountCircle } from '@mui/icons-material';
-import { Badge } from '@mui/material';
+import { Badge, Button } from '@mui/material';
 import Link from '@mui/material/Link'
+import React from 'react';
 
 
 
@@ -54,8 +55,16 @@ const StyledInputBase = styled( InputBase )( ( { theme } ) => ( {
   },
 } ) );
 
+
 export default function Header ()
 {
+  const [ value, setValue ] = React.useState( 'Controlled' );
+
+  const handleChange = ( event: React.ChangeEvent<HTMLInputElement> ) =>
+  {
+    setValue( event.target.value );
+  };
+
   return (
     <Box sx={ { flexGrow: 1 } }>
       <AppBar position="fixed">
@@ -70,15 +79,18 @@ export default function Header ()
               Home
             </Link>
           </Typography>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={ { 'aria-label': 'search' } }
-            />
-          </Search>
+          <form action={ '/search/' + value }>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                onChange={ handleChange }
+                placeholder="Search…"
+                inputProps={ { 'aria-label': 'search' } }
+              />
+            </Search>
+          </form>
           <Box sx={ { display: { xs: 'none', md: 'flex' } } }>
             <IconButton
               size="large"
