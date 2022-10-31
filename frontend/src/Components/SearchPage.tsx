@@ -13,13 +13,6 @@ export default function SearchPage ()
 
     async function fetchPosts ()
     {
-        // var res = new Response();
-        // if ( key !== '' )
-        // {
-        //     res = await fetch(
-        //         `http://DeductionProject/api/searchPostsByKey?key=${ key }`
-        //     );
-        // }
         var res = await fetch(
             `http://DeductionProject/api/searchPostsByKey?key=` + keyWord
         );
