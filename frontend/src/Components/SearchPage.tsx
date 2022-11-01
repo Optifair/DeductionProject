@@ -5,7 +5,7 @@ import { json } from 'stream/consumers';
 import { useParams } from 'react-router-dom';
 import ScrollTopButton from './ScrollTopButton';
 import { Button } from '@mui/material';
-
+import BackAdress from '../BackAdress';
 
 export default function SearchPage ()
 {
@@ -21,7 +21,7 @@ export default function SearchPage ()
     async function fetchPosts ( pageSize: any, offset: any )
     {
         var res = await fetch(
-            `http://DeductionProject/api/searchPostsByKey?limit=${ pageSize }&offset=${ offset }&key=` + keyWord
+            `http://${ BackAdress }/api/searchPostsByKey?limit=${ pageSize }&offset=${ offset }&key=` + keyWord
         );
 
         return await res.json();

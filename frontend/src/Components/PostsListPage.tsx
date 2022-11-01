@@ -3,6 +3,7 @@ import { Stack } from '@mui/system';
 import PostCard from './PostCard';
 import { Box, Button } from '@mui/material';
 import ScrollTopButton from './ScrollTopButton';
+import BackAdress from '../BackAdress';
 
 export default function PostsListPage ()
 {
@@ -16,7 +17,7 @@ export default function PostsListPage ()
   async function fetchPosts ( pageSize: any, offset: any )
   {
     const res = await fetch(
-      `http://DeductionProject/api/posts?limit=${ pageSize }&offset=${ offset }`
+      `http://${ BackAdress }/api/posts?limit=${ pageSize }&offset=${ offset }`
     );
 
     return await res.json();
