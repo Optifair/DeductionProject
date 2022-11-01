@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Stack } from '@mui/system';
 import PostCard from './PostCard';
 import { Box, Button } from '@mui/material';
+import ScrollTopButton from './ScrollTopButton';
 
 export default function PostsListPage ()
 {
   const [ postsTotal, setPostsTotal ] = useState( undefined );
   const [ posts, setPosts ] = useState( [] );
+  const [ pageSize, setPageSize ] = useState<number>( 5 );
 
 
-  var pageSize = 10;
   const offset = 0;
 
   async function fetchPosts ( pageSize: any, offset: any )
@@ -21,11 +22,6 @@ export default function PostsListPage ()
     return await res.json();
   }
 
-  async function loadNewPosts ()
-  {
-    pageSize += 5;
-  }
-
   useEffect( () =>
   {
     fetchPosts( pageSize, offset ).then( ( posts ) =>
@@ -34,6 +30,12 @@ export default function PostsListPage ()
       setPosts( posts.posts );
     } );
   }, [ pageSize, offset ] )
+
+  async function loadNewPosts ()
+  {
+    setPageSize( ( pageSize ) => pageSize + 5 );
+  }
+
 
   return (
     <Stack spacing={ 3 } alignItems={ 'center' } paddingBottom={ '30px' }>
@@ -45,6 +47,7 @@ export default function PostsListPage ()
         } ) }
       </Stack>
       <Button onClick={ loadNewPosts } variant="outlined" style={ { border: '1px solid ghostwhite', color: 'ghostwhite' } }>Show more</Button>
+      <ScrollTopButton />
     </Stack>
   );
 
