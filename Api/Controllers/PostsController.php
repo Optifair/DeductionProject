@@ -26,9 +26,12 @@ class PostsController extends Controller
         header("Access-Control-Allow-Origin: *");
         header("Access-Control-Allow-Headers: *");
 
-        $key = $_GET['key'];
+        $perPage = $_GET['limit'] ?? 5;
+        $pageNumber = $_GET['offset'] ?? 0;
 
-        $postsArray['posts'] = PostRepository::searchPostsByKey($key);
+        $key = $_GET['key'] ?? '';
+
+        $postsArray['posts'] = PostRepository::searchPostsByKey($perPage, $pageNumber, $key);
 
         echo json_encode($postsArray, JSON_PRETTY_PRINT);
     }

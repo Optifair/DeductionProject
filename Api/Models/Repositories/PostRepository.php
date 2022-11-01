@@ -40,10 +40,10 @@ class PostRepository extends Repository
         return $post;
     }
 
-    public static function searchPostsByKey($key): array
+    public static function searchPostsByKey($perPage, $pageNumber, $key): array
     {
         self::prepareExecution();
-        $query = QO::select()->table('posts')->like($key);
+        $query = QO::select()->table('posts')->limit($perPage)->offset($pageNumber)->like($key);
         $query->columns(
             'id',
             'user_id',
