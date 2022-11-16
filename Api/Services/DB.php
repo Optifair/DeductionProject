@@ -2,26 +2,14 @@
 
 namespace Api\Services;
 
+use Api\Services\DBCredentials as Creds;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 class DB
 {
     private static $connection = null;
-
-    public static function connect(): array
-    {
-        if (null != self::$connection) {
-            return [true, 'Already connect'];
-        }
-        try {
-            self::$connection = new PDO('mysql:host=' . self::$db_host . ';dbname=' . self::$db_database, self::$db_user, self::$db_password);
-            self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            return [true, 'Connection successful'];
-        } catch (PDOException $e) {
-            return [false, 'Connection failed' . $e->getMessage()];
-        }
-    }
 
     public static function closeConnection()
     {
@@ -37,8 +25,7 @@ class DB
         return $checkedCon;
     }
 
-
-    public static function executeQuery(string $query): \PDOStatement
+    public static function executeQuery(string $query): PDOStatement
     {
         self::connect();
 
@@ -49,8 +36,17 @@ class DB
         return $statement;
     }
 
-    public static $db_host = 'localhost';
-    public static $db_user = 'test';
-    public static $db_password = 'пароль';
-    public static $db_database = 'deductionproject';
+    public static function connect(): array
+    {
+        if (null != self::$connection) {
+            return [true, 'Already connect'];
+        }
+        try {
+            self::$connection = new PDO('mysql:host=' . Creds::$db_host . ';dbname=' . Creds::$db_database, Creds::$db_user, Creds::$db_password);
+            self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return [true, 'Connection successful'];
+        } catch (PDOException $e) {
+            return [false, 'Connection failed' . $e->getMessage()];
+        }
+    }
 }
