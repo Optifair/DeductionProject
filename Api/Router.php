@@ -2,33 +2,11 @@
 
 namespace Api;
 
-use Api\Controllers;
-use Services\DB;
+use Exception;
 
 class Router
 {
-    private static function routing($current_link, $urls)
-    {
-        try {
-            foreach ($urls as $index => $url) {
-                if ($index != $current_link) {
-                    continue;
-                }
-
-                $routeElement = explode('@', $url[0]);
-                $className = $routeElement[0];
-                $function =  $routeElement[1];
-
-                $class = "Api\Controllers\\$className";
-                $object = new $class();
-                $object->$function();
-            }
-        } catch(\Exception $e) {
-            var_dump($e->getMessage());
-        }
-    }
-
-    public static function routes($current_link)
+    public static function routing($current_link)
     {
         if (strpos($current_link, '?') !== false) {
             $current_link = explode('?', $current_link)[0];
@@ -36,8 +14,16 @@ class Router
 
         $urls = [
             '/api/posts' => ['PostsController@getPostsFromDatabase'],
-            '/api/searchPostsByKey' => ['PostsController@searchPostsByKey'],
+            '/api/marks' => ['PostsController@getMarks'],
+            '/api/searchPosts' => ['PostsController@searchPosts'],
             '/api/getCurrentPost' => ['PostsController@getCurrentPost'],
+            '/api/MarkPost' => ['PostsController@MarkPost'],
+            '/api/comments' => ['CommentsController@getCommentsOfPost'],
+            '/api/registerUser' => ['UsersController@addUser'],
+            '/api/authUser' => ['UsersController@authUser'],
+            '/api/logout' => ['UsersController@logoutUser'],
+            '/api/cookieAuth' => ['UsersController@authUserWithCookie'],
+            '/api/getUserData' => ['UsersController@getUserData'],
         ];
 
         $availableRoutes = array_keys($urls);
@@ -47,6 +33,27 @@ class Router
             exit;
         }
 
-        Router::routing($current_link, $urls);
+        Router::tryRoute($current_link, $urls);
+    }
+
+    private static function tryRoute($current_link, $urls)
+    {
+        try {
+            foreach ($urls as $index => $url) {
+                if ($index != $current_link) {
+                    continue;
+                }
+
+                $routeElement = explode('@', $url[0]);
+                $className = $routeElement[0];
+                $function = $routeElement[1];
+
+                $class = "Api\Controllers\\$className";
+                $object = new $class();
+                $object->$function();
+            }
+        } catch (Exception $e) {
+            var_dump($e->getMessage());
+        }
     }
 }
