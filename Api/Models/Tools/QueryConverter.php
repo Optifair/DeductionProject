@@ -2,29 +2,32 @@
 
 namespace Api\Models\Tools;
 
-use Exception;
-
 class QueryConverter
 {
     public static function composeSelect(
         string $table,
-        array $columns,
+        array  $columns,
         string $where,
+        string $join,
         string $like,
         string $groupBy,
-        array $orderBy,
-        int $limit,
-        int $offset,
-        int $numOfJoins = 0
-    ): string {
+        array  $orderBy,
+        int    $limit,
+        int    $offset,
+        int    $numOfJoins = 0
+    ): string
+    {
         $columnString = implode(', ', $columns);
         $queryString = "SELECT $columnString FROM $table";
+        if (!empty($join)) {
+            $queryString .= " JOIN $join";
+        }
         if (!empty($where)) {
             $queryString .= " WHERE $where";
         }
 
         if (!empty($like)) {
-            $queryString .= " WHERE title OR content LIKE $like";
+            $queryString .= " AND (title OR content LIKE $like)";
         }
 
         if (!empty($groupBy)) {
@@ -54,9 +57,10 @@ class QueryConverter
 
     public static function composeInsert(
         string $table,
-        array $columns,
-        array $values
-    ): string {
+        array  $columns,
+        array  $values
+    ): string
+    {
         $columnString = implode(', ', $columns);
         $valueString = implode(', ', $values);
         return "INSERT INTO $table ($columnString) VALUES ($valueString);";
@@ -64,10 +68,11 @@ class QueryConverter
 
     public static function composeUpdate(
         string $table,
-        array $columns,
-        array $values,
+        array  $columns,
+        array  $values,
         string $where
-    ): string {
+    ): string
+    {
         if ($values[0] === "'NULL'") {
             $values[0] = 'NULL';
         }

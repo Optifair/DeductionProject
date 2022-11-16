@@ -2,8 +2,8 @@
 
 namespace Api\Models\Tools;
 
-use Exception;
 use Api\Models\Tools\QueryConverter as QC;
+use Exception;
 
 class QueryObject
 {
@@ -13,6 +13,7 @@ class QueryObject
     private array $columns;
     private string $like;
     private string $where;
+    private string $join;
     private string $groupBy;
     private array $orderBy;
     private int $limit;
@@ -30,6 +31,7 @@ class QueryObject
         $this->columns = ['*'];
         $this->like = '';
         $this->where = '';
+        $this->join = '';
         $this->groupBy = '';
         $this->orderBy = [];
         $this->limit = 0;
@@ -38,42 +40,6 @@ class QueryObject
         $this->grouppable = false;
         $this->values = [];
         $this->aliasMap = [];
-    }
-
-    public function __toString(): string
-    {
-        if ('select' == $this->action) {
-            $this->query = QC::composeSelect(
-                $this->table,
-                $this->columns,
-                $this->where,
-                $this->like,
-                $this->groupBy,
-                $this->orderBy,
-                $this->limit,
-                $this->offset,
-                $this->numOfJoins
-            );
-        } elseif ('insert' == $this->action) {
-            $this->query = QC::composeInsert(
-                $this->table,
-                $this->columns,
-                $this->values
-            );
-        } elseif ('update' == $this->action) {
-            $this->query = QC::composeUpdate(
-                $this->table,
-                $this->columns,
-                $this->values,
-                $this->where
-            );
-        } elseif ('delete' == $this->action) {
-            $this->query = QC::composeDelete(
-                $this->table,
-                $this->where
-            );
-        }
-        return $this->query;
     }
 
     public static function select(): QueryObject
@@ -114,6 +80,43 @@ class QueryObject
         }
     }
 
+    public function __toString(): string
+    {
+        if ('select' == $this->action) {
+            $this->query = QC::composeSelect(
+                $this->table,
+                $this->columns,
+                $this->where,
+                $this->join,
+                $this->like,
+                $this->groupBy,
+                $this->orderBy,
+                $this->limit,
+                $this->offset,
+                $this->numOfJoins
+            );
+        } elseif ('insert' == $this->action) {
+            $this->query = QC::composeInsert(
+                $this->table,
+                $this->columns,
+                $this->values
+            );
+        } elseif ('update' == $this->action) {
+            $this->query = QC::composeUpdate(
+                $this->table,
+                $this->columns,
+                $this->values,
+                $this->where
+            );
+        } elseif ('delete' == $this->action) {
+            $this->query = QC::composeDelete(
+                $this->table,
+                $this->where
+            );
+        }
+        return $this->query;
+    }
+
     public function table($table): QueryObject
     {
         if (!empty($this->table)) {
@@ -134,52 +137,16 @@ class QueryObject
         return $this;
     }
 
-    public function join(string $type, $table, ...$conditions): QueryObject
+    public function join($tables, $conditions): QueryObject
     {
-        $types = ['RIGHT', 'LEFT', 'INNER', 'FULL'];
-        if (!in_array($type, $types)) {
-            throw new Exception('Incorrect query formation: unknown join type');
-        }
-        if (!!empty($this->table)) {
-            throw new Exception("Incorrect query formation: first table of the join hasn't been specified");
-        }
-        if ('select' != $this->action) {
-            throw new Exception('Incorrect query formation: using composed table for other purpose than selection');
-        }
-        if ('string' == gettype($table)) {
-            $this->numOfJoins++;
-            if ($this->numOfJoins == 1) {
-                $this->aliasMap[$this->table] = "TL$this->numOfJoins";
-                $this->table .= " AS TL$this->numOfJoins";
-            }
-            $this->aliasMap[$table] = "TR$this->numOfJoins";
-            $this->table .= " $type JOIN $table AS TR$this->numOfJoins";
+        $joinCond = $tables[1] . '.' . $conditions[1] . ' = ' . $tables[0] . '.' . $conditions[0];
+
+        if (!empty($this->join)) {
+            $this->join = $this->join . ' JOIN ' . $tables[0] . ' ON ' . $joinCond;
         } else {
-            throw new Exception('Incorrect query formation: joining with an unknown object');
+            $this->join = $tables[0] . ' ON ' . $joinCond;
         }
-        if (!empty($conditions)) {
-            foreach ($conditions as $condition) {
-                if (false !== $i = array_search($condition, $this->columns)) {
-                    $this->columns[$i] = 'TR' . $this->numOfJoins . '.' . $this->columns[$i];
-                }
-            }
-            if (1 == count($conditions)) {
-                $conditions[1] = $conditions[0];
-            }
-            if (2 == count($conditions)) {
-                if ($this->numOfJoins == 1) {
-                    $condition = "TL$this->numOfJoins.$conditions[0] = TR$this->numOfJoins.$conditions[1]";
-                } else {
-                    // not scalable yet...
-                    $condition = 'TR' . ($this->numOfJoins - 1) . ".$conditions[0] = TR$this->numOfJoins.$conditions[1]";
-                }
-            } else {
-                throw new Exception('Incorrect query formation: too many conditions for joining');
-            }
-            $this->table = "($this->table ON $condition)";
-        } else {
-            throw new Exception('Incorrect query formation: join condition is not specified');
-        }
+
         return $this;
     }
 
@@ -216,7 +183,7 @@ class QueryObject
     {
         $conditionStrings = [];
         foreach ($conditions as $condition) {
-            if (count($condition) > 2) {
+            if (count($condition) > 3) {
                 throw new Exception('Incorrect query formation: wrong where condition format');
             }
             if (1 == count($condition)) {
@@ -225,7 +192,7 @@ class QueryObject
                 if (gettype($condition[1]) != 'integer') {
                     $condition[1] = "'$condition[1]'";
                 }
-                $conditionStrings[] = "$condition[0] = $condition[1]";
+                $conditionStrings[] = "$condition[0] $condition[2] $condition[1]";
             }
         }
         if (!empty($this->where)) {
@@ -239,13 +206,12 @@ class QueryObject
     public function like(string $key): QueryObject
     {
         if (!empty($this->like)) {
-            $this->like .=  "'%$key%'";
+            $this->like .= "'%$key%'";
         } else {
             $this->like = "'%$key%'";
         }
         return $this;
     }
-
 
     public function limit(int $limit): QueryObject
     {
