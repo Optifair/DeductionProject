@@ -82,37 +82,42 @@ class QueryObject
 
     public function __toString(): string
     {
-        if ('select' == $this->action) {
-            $this->query = QC::composeSelect(
-                $this->table,
-                $this->columns,
-                $this->where,
-                $this->join,
-                $this->like,
-                $this->groupBy,
-                $this->orderBy,
-                $this->limit,
-                $this->offset,
-                $this->numOfJoins
-            );
-        } elseif ('insert' == $this->action) {
-            $this->query = QC::composeInsert(
-                $this->table,
-                $this->columns,
-                $this->values
-            );
-        } elseif ('update' == $this->action) {
-            $this->query = QC::composeUpdate(
-                $this->table,
-                $this->columns,
-                $this->values,
-                $this->where
-            );
-        } elseif ('delete' == $this->action) {
-            $this->query = QC::composeDelete(
-                $this->table,
-                $this->where
-            );
+        switch ($this->action) {
+            case 'select':
+                $this->query = QC::composeSelect(
+                    $this->table,
+                    $this->columns,
+                    $this->where,
+                    $this->join,
+                    $this->like,
+                    $this->groupBy,
+                    $this->orderBy,
+                    $this->limit,
+                    $this->offset,
+                    $this->numOfJoins
+                );
+                break;
+            case 'insert':
+                $this->query = QC::composeInsert(
+                    $this->table,
+                    $this->columns,
+                    $this->values
+                );
+                break;
+            case 'update':
+                $this->query = QC::composeUpdate(
+                    $this->table,
+                    $this->columns,
+                    $this->values,
+                    $this->where
+                );
+                break;
+            case 'delete':
+                $this->query = QC::composeDelete(
+                    $this->table,
+                    $this->where
+                );
+                break;
         }
         return $this->query;
     }
@@ -137,9 +142,15 @@ class QueryObject
         return $this;
     }
 
-    public function join($tables, $conditions): QueryObject
+    public function join($tables, $conditions, ...$joinedTableName): QueryObject
     {
-        $joinCond = $tables[1] . '.' . $conditions[1] . ' = ' . $tables[0] . '.' . $conditions[0];
+
+        if (!empty($joinedTableName)) {
+            $joinCond = $tables[1] . '.' . $conditions[1] . ' = ' . $joinedTableName[0] . '.' . $conditions[0];
+            $tables[0] = $tables[0] . " AS $joinedTableName[0]";
+        } else {
+            $joinCond = $tables[1] . '.' . $conditions[1] . ' = ' . $tables[0] . '.' . $conditions[0];
+        }
 
         if (!empty($this->join)) {
             $this->join = $this->join . ' JOIN ' . $tables[0] . ' ON ' . $joinCond;
