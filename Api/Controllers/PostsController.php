@@ -46,36 +46,28 @@ class PostsController extends Controller
         echo json_encode($postsArray, JSON_PRETTY_PRINT);
     }
 
-    public function MarkPost()
+    public function addPost()
     {
         self::setCORSHeaders();
+        $authRes = self::checkAuth();
+        if (!empty(file_get_contents('php://input'))) {
+            if ($authRes['auth']) {
+                $json = file_get_contents('php://input');
+                $data = json_decode($json);
 
-        $json = file_get_contents('php://input');
-        $data = json_decode($json);
+                $content = $data->content;
+                $title = $data->title;
+                $image = '';
+                if (!empty($data->image)) {
+                    $image = $data->image;
+                }
+                $login = $_COOKIE['login'];
+                $user_id = UserRepository::findUserByLogin($login)['id'];
 
-        $post_id = $data->id;
-        $login = $_COOKIE['login'];
-        $user = UserRepository::findUserByLogin($login);
-
-        $mark = PostRepository::findMark($user['id'], $post_id);
-        if (!empty($mark)) {
-            PostRepository::deleteMark($mark[0]['mark_id']);
-        } else {
-            PostRepository::addMark($user['id'], $post_id);
+                PostRepository::addPost($user_id, $title, $content, $image);
+            }
+            echo json_encode($authRes, JSON_PRETTY_PRINT);
         }
-    }
 
-    public function getMarks()
-    {
-        self::setCORSHeaders();
-
-        $login = $_COOKIE['login'];
-
-        $perPage = $_GET['limit'] ?? 5;
-        $pageNumber = $_GET['offset'] ?? 0;
-
-        $postsArray['posts'] = PostRepository::getMarks($login, $perPage, $pageNumber);
-
-        echo json_encode($postsArray, JSON_PRETTY_PRINT);
     }
 }
