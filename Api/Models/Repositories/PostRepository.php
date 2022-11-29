@@ -9,34 +9,19 @@ class PostRepository extends Repository
     public static function getPosts($perPage, $pageNumber): array
     {
         self::prepareExecution();
-        $query = QO::select()->table('posts')->limit($perPage)->offset($pageNumber);
-        $query->columns(
-            'id',
-            'user_id',
-            'title',
-            'content',
-            'image',
-            'date'
-        );
-
-        $posts = self::executeQuery($query);
-        return $posts;
-    }
-
-    public static function getMarks($login, $perPage, $pageNumber): array
-    {
-        self::prepareExecution();
-        $query = QO::select()->table('posts')->join(['marks', 'posts'], ['post_id', 'id'])->
-        join(['users', 'marks'], ['id', 'mark_user_id'])->where(['login', $login, '='])->limit($perPage)->offset($pageNumber);
+        $query = QO::select()->table('posts')->join(['users', 'posts'], ['id', 'user_id'])->limit($perPage)
+            ->offset($pageNumber)->orderBy(['date', 'DESC']);
         $query->columns(
             'posts.id',
             'user_id',
             'title',
             'content',
             'image',
+            'avatar',
             'date',
-            'mark_date'
+            'name'
         );
+
         $posts = self::executeQuery($query);
         return $posts;
     }
@@ -61,52 +46,35 @@ class PostRepository extends Repository
     public static function searchPosts($perPage, $pageNumber, $key, $startDate, $endDate): array
     {
         self::prepareExecution();
-        $query = QO::select()->table('posts')->limit($perPage)->offset($pageNumber)->
-        where(['date', $startDate, '>='])->where(['date', $endDate, '<='])->like($key);
+        $query = QO::select()->table('posts')->join(['users', 'posts'], ['id', 'user_id'])
+            ->limit($perPage)->offset($pageNumber)
+            ->where(['date', $startDate, '>='])->where(['date', $endDate, '<='])
+            ->like($key)->orderBy(['date', 'DESC']);
         $query->columns(
-            'id',
+            'posts.id',
             'user_id',
             'title',
             'content',
             'image',
+            'avatar',
+            'name',
             'date'
         );
         $posts = self::executeQuery($query);
         return $posts;
     }
 
-    public static function addMark($user_id, $post_id)
+    public static function addPost($user_id, $title, $content, $image)
     {
         self::prepareExecution();
-        $query = QO::insert()->table('marks')->columns('mark_user_id', 'post_id');
+        $query = QO::insert()->table('posts')->columns('user_id', 'title', 'content', 'image');
 
         $query->values(
             $user_id,
-            $post_id,
+            $title,
+            $content,
+            $image
         );
         self::executeQuery($query, false);
-    }
-
-    public static function findMark($user_id, $post_id)
-    {
-        self::prepareExecution();
-        $query = QO::select()->table('marks')->where(['mark_user_id', $user_id, '='])
-            ->where(['post_id', $post_id, '=']);
-        $query->columns(
-            'mark_id',
-            'mark_user_id',
-            'post_id'
-        );
-        $mark = self::executeQuery($query);
-        return $mark;
-
-    }
-
-    public static function deleteMark($mark_id)
-    {
-        self::prepareExecution();
-        $query = QO::delete()->table('marks')->where(['mark_id', $mark_id, '=']);
-        echo $query;
-        $mark = self::executeQuery($query)[0];
     }
 }
