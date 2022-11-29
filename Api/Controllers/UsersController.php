@@ -19,10 +19,11 @@ class UsersController extends Controller
             $remember = $data->rem = false;
 
             $user = UserRepository::findUserByLogin($login);
+            $ret = ['auth' => false];
             if (!empty($user)) {
                 if (UserRepository::verifyPassword($password, $user['salt'], $user['password'])) {
                     session_start();
-
+                    $ret['auth'] = true;
                     $_SESSION['auth'] = true;
                     $_SESSION['id'] = $user['id'];
                     $_SESSION['login'] = $user['login'];
@@ -36,10 +37,10 @@ class UsersController extends Controller
 
                     setcookie('login', $user['login'], $time);
                     setcookie('key', $key, $time);
-                    UserRepository::updateCookieUser($login, $key);
-                    echo json_encode($_COOKIE, JSON_PRETTY_PRINT);
+                    UserRepository::updateUserCookie($login, $key);
                 }
             }
+            echo json_encode($ret, JSON_PRETTY_PRINT);
         }
     }
 
@@ -56,44 +57,78 @@ class UsersController extends Controller
     public function authUserWithCookie()
     {
         self::setCORSHeaders();
-
-        session_start();
-        if (empty($_SESSION['auth']) or $_SESSION['auth'] == false) {
-            if (!empty($_COOKIE['login']) and !empty($_COOKIE['key'])) {
-                $login = $_COOKIE['login'];
-                $key = $_COOKIE['key'];
-
-                $user = UserRepository::findUserByLogin($login);
-
-                if (!empty($user) and !empty($user['key']) and $user['key'] == $key) {
-                    session_start();
-                    $_SESSION['auth'] = true;
-
-                    $_SESSION['id'] = $user['id'];
-                    $_SESSION['login'] = $user['login'];
-                }
-            }
+        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
+            $ret = self::checkAuth();
+            echo json_encode($ret, JSON_PRETTY_PRINT);
         }
-        $auth = false;
-        if (!empty($_SESSION['auth']) and $_SESSION['auth']) {
-            $auth = true;
-        }
-
-        $ret = ['auth' => $auth];
-        echo json_encode($ret, JSON_PRETTY_PRINT);
     }
 
     public function getUserData()
     {
         self::setCORSHeaders();
+        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
+            $authRes = self::checkAuth();
+            if ($authRes) {
+                $login = $_COOKIE['login'];
+                $user = UserRepository::findUserByLogin($login);
+                echo json_encode($user, JSON_PRETTY_PRINT);
+            }
+        }
+    }
 
-        $login = $_COOKIE['login'];
-        $user = UserRepository::findUserByLogin($login);
-        $res = [
-            'name' => $user['name'],
-            'login' => $user['login'],
-        ];
-        echo json_encode($res, JSON_PRETTY_PRINT);
+    public function editUserData()
+    {
+        self::setCORSHeaders();
+        if (!empty(file_get_contents('php://input'))) {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json);
+
+            $newName = $data->newName;
+            $newLogin = $data->newLogin;
+            $newAvatar = $data->newAvatar;
+            $newPass = $data->newPass;
+            $pass = $data->pass;
+
+            $ret = [
+                'isEdit' => false,
+                'isAuth' => false,
+                'isPassCorrect' => false,
+                'isLoginNotTaken' => true
+            ];
+
+            $authRes = self::checkAuth();
+            if ($authRes) {
+                $ret['isAuth'] = true;
+                $login = $_COOKIE['login'];
+                $user = UserRepository::findUserByLogin($login);
+                if (UserRepository::verifyPassword($pass, $user['salt'], $user['password'])) {
+                    $ret['isPassCorrect'] = true;
+                    if ($newLogin != '') {
+                        $searchedUser = UserRepository::findUserByLogin($newLogin);
+                        if (empty($searchedUser)) {
+                            UserRepository::updateLogin($login, $newLogin);
+                            setcookie('login', $newLogin, time() + 60 * 60 * 24 * 30);
+                            $login = $newLogin;
+                        } else {
+                            $ret['isLoginNotTaken'] = false;
+                        }
+                    }
+                    if ($ret['isLoginNotTaken']) {
+                        $ret['isEdit'] = true;
+                        if ($newName != '') {
+                            UserRepository::updateName($login, $newName);
+                        }
+                        if ($newAvatar != '') {
+                            UserRepository::updateAvatar($login, $newAvatar);
+                        }
+                        if ($newPass != '') {
+                            UserRepository::updatePass($login, $newPass);
+                        }
+                    }
+                }
+            }
+            echo json_encode($ret, JSON_PRETTY_PRINT);
+        }
     }
 
     public function logoutUser()
@@ -108,20 +143,29 @@ class UsersController extends Controller
             setcookie('login', '', time());
             setcookie('key', '', time());
 
-            UserRepository::updateCookieUser($login, '');
+            UserRepository::updateUserCookie($login, '');
         }
     }
 
     public function addUser()
     {
         self::setCORSHeaders();
+        if (!empty(file_get_contents('php://input'))) {
 
-        $name = $_GET['name'];
-        $login = $_GET['login'];
-        $password = $_GET['pass'];
-        $probablyUser = UserRepository::findUserByLogin($login);
-        if (empty($probablyUser)) {
-            UserRepository::addUser($name, $login, $password);
+            $json = file_get_contents('php://input');
+            $data = json_decode($json);
+
+            $name = $data->name;
+            $login = $data->login;
+            $password = $data->password;
+
+            $probablyUser = UserRepository::findUserByLogin($login);
+            $ret = ['isRegister' => false];
+            if (empty($probablyUser)) {
+                UserRepository::addUser($name, $login, $password);
+                $ret['isRegister'] = true;
+            }
+            echo json_encode($ret, JSON_PRETTY_PRINT);
         }
     }
 }
