@@ -14,16 +14,20 @@ class Router
 
         $urls = [
             '/api/posts' => ['PostsController@getPostsFromDatabase'],
-            '/api/marks' => ['PostsController@getMarks'],
             '/api/searchPosts' => ['PostsController@searchPosts'],
             '/api/getCurrentPost' => ['PostsController@getCurrentPost'],
-            '/api/MarkPost' => ['PostsController@MarkPost'],
+            '/api/addPost' => ['PostsController@addPost'],
+            '/api/marks' => ['MarksController@getMarks'],
+            '/api/markPost' => ['MarksController@markPost'],
             '/api/comments' => ['CommentsController@getCommentsOfPost'],
+            '/api/addComment' => ['CommentsController@addComment'],
+            '/api/likeComment' => ['LikesController@likeComment'],
             '/api/registerUser' => ['UsersController@addUser'],
             '/api/authUser' => ['UsersController@authUser'],
             '/api/logout' => ['UsersController@logoutUser'],
             '/api/cookieAuth' => ['UsersController@authUserWithCookie'],
             '/api/getUserData' => ['UsersController@getUserData'],
+            '/api/editUserData' => ['UsersController@editUserData'],
         ];
 
         $availableRoutes = array_keys($urls);
