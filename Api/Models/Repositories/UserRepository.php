@@ -46,9 +46,14 @@ class UserRepository extends Repository
             'password',
             'salt',
             'cookie',
-            'avatar'
+            'avatar',
+            'rating'
         );
-        $user = self::executeQuery($query)[0];
+        $queryResult = self::executeQuery($query);
+        $user = [];
+        if (!empty($queryResult)) {
+            $user = $queryResult[0];
+        }
         return $user;
     }
 
@@ -63,10 +68,56 @@ class UserRepository extends Repository
         return $verified;
     }
 
-    public static function updateCookieUser($login, $cookie)
+    public static function updateUserCookie($login, $newCookie)
     {
         self::prepareExecution();
-        $query = QO::update()->table('users')->columns('cookie')->values($cookie);
+        $query = QO::update()->table('users')->columns('cookie')->values($newCookie);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateName($login, $newName)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('name')->values($newName);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateLogin($login, $newlogin)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('login')->values($newlogin);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateAvatar($login, $newAvatar)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('avatar')->values($newAvatar);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updatePass($login, $newPassword)
+    {
+        $salt = self::generateSalt();
+        $saltedPass = md5($newPassword . $salt);
+
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('password')->values($saltedPass);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+        $query = QO::update()->table('users')->columns('salt')->values($salt);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateRating($login, $rating)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('rating')->values($rating);
         $query->where(['login', $login, '=']);
         self::executeQuery($query, false);
     }
