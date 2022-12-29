@@ -1,11 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import {Stack} from '@mui/system';
 import InputBase from "@mui/material/InputBase";
-import {alpha, Button, styled, Typography} from "@mui/material";
+import {
+    alpha,
+    Button,
+    Dialog,
+    DialogContent,
+    DialogProps,
+    IconButton,
+    Link,
+    Snackbar,
+    styled,
+    Typography
+} from "@mui/material";
 import BackAdress from "../BackAdress";
 import {useNavigate} from "react-router-dom";
+import CloseIcon from "@mui/icons-material/Close";
+import PasswordResetWindow from "./PasswordResetWIndow";
 
-const StyledDiv = styled('div')(({theme}) => ({
+const InputDiv = styled('div')(({theme}) => ({
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
     backgroundColor: alpha(theme.palette.common.white, 0.15),
@@ -21,6 +34,8 @@ export default function AuthPage() {
 
     const navigate = useNavigate();
 
+    const [message, setMessage] = useState('');
+
     const handleLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setLogin(event.target.value);
     };
@@ -28,7 +43,29 @@ export default function AuthPage() {
         setPass(event.target.value);
     };
 
-    async function fetchUser(login: any, pass: any) {
+    const [open, setOpen] = React.useState(false);
+    const handleClick = () => {
+        setOpen(true);
+    };
+    const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpen(false);
+    };
+
+    const [openDialog, setOpenDialog] = React.useState(false);
+    const [scrollDialog, setScrollDialog] = React.useState<DialogProps[ 'scroll' ]>('paper');
+    const handleClickOpenDialog = (scrollType: DialogProps[ 'scroll' ]) => () => {
+        setOpenDialog(true);
+        setScrollDialog(scrollType);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
+    async function fetchUser() {
         var res = await fetch(`http://${BackAdress}/api/authUser`
             , {
                 credentials: 'include',
@@ -38,8 +75,14 @@ export default function AuthPage() {
                     'Access-Control-Allow-Credentials': 'true'
                 },
                 body: JSON.stringify({"login": login, "pass": pass}),
-            }
-        )
+            })
+            .then((response) => {
+                return response.json()
+            })
+            .then((data) => {
+                return data
+            });
+        return res['auth'];
     }
 
     async function fetchAuth() {
@@ -62,8 +105,8 @@ export default function AuthPage() {
     }
 
     async function redirectIfAuthYet() {
-        const test: any = await fetchAuth();
-        if (test) {
+        const isAuth = Boolean(Number(await fetchAuth()));
+        if (isAuth) {
             navigate("/profile")
         }
     }
@@ -73,32 +116,79 @@ export default function AuthPage() {
     })
 
     async function authUser() {
-        await fetchUser(login, pass);
-        navigate("/profile");
+
+        const isAuth = Boolean(Number(await fetchUser()));
+        if (isAuth) {
+            if (login !== '' && pass !== '') {
+                navigate("/profile")
+                setMessage("You have successfully auth!");
+            } else {
+                setMessage("Input fields must be filled");
+            }
+        } else {
+            setMessage("User not found");
+        }
+        handleClick();
     }
 
     return (
         <Stack spacing={3} alignItems={'center'} paddingBottom={'30px'}>
             <Stack spacing={2} className="s" alignItems={'center'} paddingTop={'90px'} minWidth={'100%'}>
                 <Typography>Login</Typography>
-                <StyledDiv>
+                <InputDiv>
                     <InputBase onChange={handleLoginChange}
                                style={{marginLeft: '5%', marginRight: '5%'}}/>
-                </StyledDiv>
+                </InputDiv>
                 <Typography>Password</Typography>
-                <StyledDiv>
+                <InputDiv>
                     <InputBase onChange={handlePassChange} type='password'
                                style={{marginLeft: '5%', marginRight: '5%'}}/>
-                </StyledDiv>
+                </InputDiv>
 
                 <Button onClick={authUser} variant="outlined"
-                        style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}> Authentification </Button>
+                        style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}> Log in </Button>
                 <Typography>Not registered yet?</Typography>
-                <form action={'/registration'}>
+                <Link href={'/registration'} underline='none' variant="inherit" color={'whitesmoke'}>
                     <Button type={"submit"} variant="outlined"
                             style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}>Registration</Button>
-                </form>
+                </Link>
+                <Typography>Forgot your password?</Typography>
+                <Button onClick={handleClickOpenDialog('body')} variant="outlined"
+                        style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}> Reset password </Button>
             </Stack>
+            <Dialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                maxWidth={'md'}
+                PaperProps={{
+                    style: {
+                        backgroundImage: 'none',
+                        background: 'transparent',
+                        width: '25%',
+                        height: 'max-content'
+                    },
+                }}
+            >
+                <DialogContent dividers={scrollDialog === 'paper'} style={{padding: '0px 0px 0px 0px'}}>
+                    <PasswordResetWindow></PasswordResetWindow>
+                </DialogContent>
+            </Dialog>
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                }}
+                open={open}
+                autoHideDuration={50}
+                message={message}
+                action={
+                    <React.Fragment>
+                        <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
+                            <CloseIcon></CloseIcon>
+                        </IconButton>
+                    </React.Fragment>
+                }
+            />
         </Stack>
     );
 }
