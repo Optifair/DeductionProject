@@ -5,13 +5,12 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
-import {AccountCircle} from '@mui/icons-material';
-import {Badge} from '@mui/material';
 import Link from '@mui/material/Link'
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigate} from "react-router-dom";
+import BackAdress from "../BackAdress";
+import {Avatar, Menu, MenuItem} from "@mui/material";
 
 
 const Search = styled('div')(({theme}) => ({
@@ -58,6 +57,10 @@ const StyledInputBase = styled(InputBase)(({theme}) => ({
 
 export default function Header() {
     const [value, setValue] = React.useState('');
+    const [rating, setRating] = React.useState('');
+    const [avatar, setAvatar] = React.useState('');
+    const [name, setName] = React.useState('');
+    const [authState, setAuthState] = useState<boolean>(false);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setValue(event.target.value);
@@ -65,10 +68,96 @@ export default function Header() {
 
     const navigate = useNavigate();
 
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const isMenuOpen = Boolean(anchorEl);
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
 
-    async function profileRouting() {
-        navigate("/profile")
+    async function fetchAuth() {
+        let res = await fetch(`http://${BackAdress}/api/cookieAuth`
+            , {
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'Access-Control-Allow-Credentials': 'true'
+                }
+            })
+            .then((response) => {
+                return response.json()
+            })
+            .then((data) => {
+                return data
+            });
+        return Boolean(Number(res['auth']));
     }
+
+    async function fetchUserData() {
+        let res = await fetch(`http://${BackAdress}/api/getUserData`
+            , {
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'Access-Control-Allow-Credentials': 'true'
+                }
+            })
+            .then((response) => {
+                return response.json()
+            })
+            .then((data) => {
+                return data
+            });
+        return res;
+    }
+
+    async function logOut() {
+        let res = await fetch(`http://${BackAdress}/api/logout`
+            , {
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'Access-Control-Allow-Credentials': 'true'
+                }
+            })
+        navigate("/");
+    }
+
+    async function setAuth() {
+        const auth = await fetchAuth();
+        setAuthState(auth);
+    }
+
+    async function setUserData() {
+        const data = await fetchUserData();
+        setRating(data['rating']);
+        setAvatar(data['avatar']);
+        setName(data['name']);
+    }
+
+    useEffect(() => {
+        setAuth();
+        if (authState) {
+            setUserData();
+        }
+    })
+
+    const renderMenu = (
+        <Menu
+            anchorEl={anchorEl}
+            anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+            keepMounted
+            transformOrigin={{vertical: 'top', horizontal: 'right'}}
+            open={isMenuOpen}
+            onClose={handleMenuClose}
+        >
+            <MenuItem href={'profile'}>Profile</MenuItem>
+            <MenuItem href={'/marks'}>Marks</MenuItem>
+            <MenuItem onClick={logOut}>LogOut</MenuItem>
+        </Menu>
+    );
 
     return (
         <Box sx={{flexGrow: 1}}>
@@ -84,6 +173,20 @@ export default function Header() {
                             Home
                         </Link>
                     </Typography>
+                    {
+                        authState
+                        &&
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component="div"
+                            maxWidth={'max-content'}
+                            marginRight={'1%'}
+                            sx={{flexGrow: 1, display: {xs: 'none', sm: 'block'}}}
+                        >
+                            Rating {rating}
+                        </Typography>
+                    }
                     <form action={'/search/' + value}>
                         <Search>
                             <SearchIconWrapper>
@@ -97,26 +200,32 @@ export default function Header() {
                         </Search>
                     </form>
                     <Box sx={{display: {xs: 'none', md: 'flex'}}}>
-                        <IconButton
-                            size="large"
-                            aria-label="show 17 new notifications"
-                            color="inherit"
-                        >
-                            <Badge badgeContent={17} color="error">
-                                <NotificationsIcon fontSize='large'/>
-                            </Badge>
-                        </IconButton>
-
-                        <IconButton
-                            onClick={profileRouting}
-                            size="large"
-                            edge="end"
-                            aria-haspopup="true"
-                            color="inherit"
-                        >
-                            <AccountCircle fontSize='large'/>
-                        </IconButton>
+                        <Link href={'/profile'} underline='none' variant="inherit" color={'whitesmoke'}>
+                            <IconButton
+                                size="large"
+                                edge="end"
+                                aria-haspopup="true"
+                                color="inherit"
+                            >
+                                {
+                                    authState
+                                        ?
+                                        // avatar.length < 1
+                                        //     ?
+                                        //     <Avatar src={avatar}>
+                                        //     </Avatar>
+                                        //     :
+                                        //     <Avatar> {name[0]} </Avatar>
+                                        <Avatar src={avatar}> {name[0]} </Avatar>
+                                        :
+                                        <Typography>
+                                            Log In
+                                        </Typography>
+                                }
+                            </IconButton>
+                        </Link>
                     </Box>
+                    {renderMenu}
                 </Toolbar>
             </AppBar>
         </Box>
