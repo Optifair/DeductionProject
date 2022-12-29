@@ -3,6 +3,7 @@
 namespace Api\Controllers;
 
 use Api\Models\Repositories\UserRepository;
+use Api\Services\MailSender;
 
 class UsersController extends Controller
 {
@@ -76,18 +77,55 @@ class UsersController extends Controller
         }
     }
 
+    public function sendPasswordResetLink()
+    {
+        self::setCORSHeaders();
+        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
+            $login = $_POST['login'];
+            $ret = [
+                'isFound' => false
+            ];
+
+            $user = UserRepository::findUserByLogin($login);
+            if (!empty($user)) {
+                $ret['isFound'] = true;
+                $key = UserRepository::createPasswordResetCodeForUser($login);
+                MailSender::sendMail($login, self::frontPath . "/resetPassword/:" . $key);
+            }
+
+            echo json_encode($ret, JSON_PRETTY_PRINT);
+        }
+    }
+
+    public function checkPasswordResetKey()
+    {
+        self::setCORSHeaders();
+        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
+            $key = $_POST['key'];
+            $ret = [
+                'isFound' => false,
+                'login' => ""
+            ];
+
+            $user = UserRepository::findUserWithKey($key);
+            if (!empty($user)) {
+                $ret['isFound'] = true;
+                $ret['login'] = $user['login'];
+            }
+            echo json_encode($ret, JSON_PRETTY_PRINT);
+        }
+    }
+
     public function editUserData()
     {
         self::setCORSHeaders();
-        if (!empty(file_get_contents('php://input'))) {
-            $json = file_get_contents('php://input');
-            $data = json_decode($json);
+        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
 
-            $newName = $data->newName;
-            $newLogin = $data->newLogin;
-            $newAvatar = $data->newAvatar;
-            $newPass = $data->newPass;
-            $pass = $data->pass;
+            $newName = $_POST['newName'];
+            $newLogin = $_POST['newLogin'];
+            $newAvatar = $_FILES['newAvatar'];
+            $newPass = $_POST['newPass'];
+            $pass = $_POST['pass'];
 
             $ret = [
                 'isEdit' => false,
@@ -118,8 +156,11 @@ class UsersController extends Controller
                         if ($newName != '') {
                             UserRepository::updateName($login, $newName);
                         }
-                        if ($newAvatar != '') {
-                            UserRepository::updateAvatar($login, $newAvatar);
+                        if (is_uploaded_file($newAvatar['tmp_name'])) {
+                            move_uploaded_file($newAvatar['tmp_name'], './Images/' . substr($newAvatar['tmp_name'], 8) . '.png');
+                            $newAvatar_path = 'http://' . 'deductionproject' . '/Images/' . substr($newAvatar['tmp_name'], 8) . '.png';
+
+                            UserRepository::updateAvatar($login, $newAvatar_path);
                         }
                         if ($newPass != '') {
                             UserRepository::updatePass($login, $newPass);

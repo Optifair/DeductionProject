@@ -28,6 +28,8 @@ class Router
             '/api/cookieAuth' => ['UsersController@authUserWithCookie'],
             '/api/getUserData' => ['UsersController@getUserData'],
             '/api/editUserData' => ['UsersController@editUserData'],
+            '/api/sendPasswordResetLink' => ['UsersController@sendPasswordResetLink'],
+            '/api/checkPasswordResetKey' => ['UsersController@checkPasswordResetKey'],
         ];
 
         $availableRoutes = array_keys($urls);
