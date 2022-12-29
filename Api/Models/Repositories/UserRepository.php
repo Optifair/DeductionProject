@@ -35,6 +35,16 @@ class UserRepository extends Repository
         return $salt;
     }
 
+    public static function createPasswordResetCodeForUser($login)
+    {
+        $code = self::generateSalt();
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('pass_reset_code')->values($code);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+        return $code;
+    }
+
     public static function findUserByLogin($login)
     {
         self::prepareExecution();
@@ -48,6 +58,21 @@ class UserRepository extends Repository
             'cookie',
             'avatar',
             'rating'
+        );
+        $queryResult = self::executeQuery($query);
+        $user = [];
+        if (!empty($queryResult)) {
+            $user = $queryResult[0];
+        }
+        return $user;
+    }
+
+    public static function findUserWithKey($key)
+    {
+        self::prepareExecution();
+        $query = QO::select()->table('users')->where(['pass_reset_code', $key, '=']);
+        $query->columns(
+            'login',
         );
         $queryResult = self::executeQuery($query);
         $user = [];
