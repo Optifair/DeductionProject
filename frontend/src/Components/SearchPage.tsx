@@ -53,6 +53,7 @@ export default function SearchPage() {
     const [postsTotal, setPostsTotal] = useState(undefined);
     const [posts, setPosts] = useState([]);
     const [pageSize, setPageSize] = useState<number>(5);
+    const [authState, setAuthState] = useState<boolean>(false);
 
     const offset = 0;
 
@@ -90,13 +91,38 @@ export default function SearchPage() {
         return await res.json();
     }
 
+    async function fetchAuth() {
+        let res = await fetch(`http://${BackAdress}/api/cookieAuth`
+            , {
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'Access-Control-Allow-Credentials': 'true'
+                }
+            })
+            .then((response) => {
+                return response.json()
+            })
+            .then((data) => {
+                return data
+            });
+        return Boolean(Number(res['auth']));
+    }
+
     function formatDate(date: any) {
         date = date.substring(0, date.length - 5)
         date = date.replace('T', ' ')
         return date;
     }
 
+    async function setAuth() {
+        const auth = await fetchAuth();
+        setAuthState(auth);
+    }
+
     useEffect(() => {
+        setAuth();
         fetchPosts(pageSize, offset, value, formatDate(valueStartDate?.toISOString()),
             formatDate(valueEndDate?.toISOString())).then((posts) => {
             setPostsTotal(posts.count);
@@ -111,7 +137,7 @@ export default function SearchPage() {
 
     return (
         <Stack spacing={2} alignItems={'center'} paddingBottom={'30px'}>
-            <Stack spacing={4} className="s" alignItems={'center'} paddingTop={'90px'} minWidth={'100%'}>
+            <Stack spacing={4} className="s" alignItems={'center'} paddingTop={'90px'} width={'100%'}>
                 <Search>
                     <SearchIconWrapper>
                         <SearchIcon/>
@@ -138,13 +164,18 @@ export default function SearchPage() {
                         />
                     </Stack>
                 </LocalizationProvider>
-                {posts.map(function ({id, title, content, user_id, image, date}) {
+                {posts.map(function ({id, title, content, user_id, image, date, name, avatar}) {
                     return <PostCard key={id} id={id} title={title} content={content} userId={user_id}
-                                     image={image} date={date}/>
+                                     image={image} date={date} isAuth={true} userName={name}
+                                     userAvatar={avatar}/>
                 })}
             </Stack>
-            <Button onClick={loadNewPosts} variant="outlined"
-                    style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}>Show more</Button>
+            {
+                posts.length > 1
+                &&
+                <Button onClick={loadNewPosts} variant="outlined"
+                        style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}>Show more</Button>
+            }
             <ScrollTopButton/>
         </Stack>
     );
