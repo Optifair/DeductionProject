@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import SubscribeIcon from '@mui/icons-material/Bookmarks';
 import {
     Avatar,
@@ -13,14 +13,15 @@ import {
     IconButton,
     IconButtonProps,
     Link,
+    Snackbar,
     styled,
     Typography
 } from '@mui/material';
-import {red} from '@mui/material/colors';
 import PostWindow from './PostWindow';
 import {Stack} from "@mui/system";
 import BackAdress from "../BackAdress";
 import {useNavigate} from "react-router-dom";
+import CloseIcon from "@mui/icons-material/Close";
 
 
 type Params = {
@@ -30,6 +31,9 @@ type Params = {
     userId: string;
     image: string;
     date: string;
+    isAuth: boolean;
+    userAvatar: string;
+    userName: string;
 }
 
 
@@ -48,11 +52,24 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
     }),
 }));
 
-export default function PostCard({id, title, content, userId, image, date}: Params) {
+export default function PostCard({id, title, content, userId, image, date, isAuth, userAvatar, userName}: Params) {
     const [open, setOpen] = React.useState(false);
     const [scroll, setScroll] = React.useState<DialogProps[ 'scroll' ]>('paper');
+    const [authState, setAuthState] = useState<boolean>(Boolean(Number(isAuth)));
 
     const navigate = useNavigate();
+
+    const [openToast, setOpenToast] = React.useState(false);
+    const handleToastClick = () => {
+        setOpenToast(true);
+    };
+    const handleToastClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenToast(false);
+    };
+
 
     const handleClickOpen = (scrollType: DialogProps[ 'scroll' ]) => () => {
         setOpen(true);
@@ -69,27 +86,8 @@ export default function PostCard({id, title, content, userId, image, date}: Para
         setExpanded(!expanded);
     };
 
-    async function fetchAuth() {
-        let res = await fetch(`http://${BackAdress}/api/cookieAuth`
-            , {
-                credentials: 'include',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8',
-                    'Access-Control-Allow-Credentials': 'true'
-                }
-            })
-            .then((response) => {
-                return response.json()
-            })
-            .then((data) => {
-                return data
-            });
-        return res['auth'];
-    }
-
     async function fetchMarkPost() {
-        let res = await fetch(`http://${BackAdress}/api/MarkPost`
+        let res = await fetch(`http://${BackAdress}/api/markPost`
             , {
                 credentials: 'include',
                 method: 'POST',
@@ -99,28 +97,35 @@ export default function PostCard({id, title, content, userId, image, date}: Para
                 },
                 body: JSON.stringify({"id": id}),
             })
+            .then((response) => {
+                return response.json()
+            })
+            .then((data) => {
+                return data
+            });
         return res;
     }
 
     async function MarkPost() {
-        const test: any = await fetchAuth();
-        if (!test) {
-            navigate("/auth")
+        const isAdded = Boolean(await fetchMarkPost())
+        if (isAdded) {
+            handleToastClick();
         } else {
-            await fetchMarkPost()
+            navigate("/auth")
         }
     }
 
+
     return (
-        <Card sx={{maxWidth: '50%', minWidth: 500, borderRadius: '25px'}}>
+        <Card sx={{maxWidth: '50%', minWidth: 500, borderRadius: '25px', width: '100%'}}>
             <Box padding={'10px'}>
                 <CardHeader sx={{paddingBottom: '0px', fontSize: 'large'}}
                             avatar={
-                                <Avatar sx={{bgcolor: red[500], height: 60, width: 60}}
-                                        src='https://bit.ly/broken-link'>
-                                </Avatar>
+                                <Avatar src={userAvatar}> {userName[0]} </Avatar>
                             }
                             action={
+                                authState
+                                &&
                                 <IconButton aria-label="settings" onClick={MarkPost}>
                                     <SubscribeIcon fontSize='large'/>
                                 </IconButton>
@@ -128,7 +133,7 @@ export default function PostCard({id, title, content, userId, image, date}: Para
                             title={
                                 <Stack>
                                     <Typography variant="h6">
-                                        {userId}
+                                        {userName}
                                     </Typography>
                                     <Typography variant="h6" fontSize={'medium'} color={'gray'}>
                                         {date}
@@ -144,13 +149,15 @@ export default function PostCard({id, title, content, userId, image, date}: Para
                     PaperProps={{
                         style: {
                             backgroundImage: 'none',
-                            background: 'transparent'
+                            background: 'transparent',
+                            width: '80%'
                         },
                     }}
                 >
-                    <DialogContent dividers={scroll === 'paper'} style={{padding: '0px 0px 0px 0px'}}
-                    >
-                        <PostWindow id={id} title={title} content={content} userId={userId} image={image} date={date}/>
+                    <DialogContent dividers={scroll === 'paper'} style={{padding: '0px 0px 0px 0px'}}>
+                        <PostWindow id={id} title={title} content={content} userId={userId}
+                                    image={image} date={date} isAuth={isAuth} userAvatar={userAvatar}
+                                    userName={userName}/>
                     </DialogContent>
                 </Dialog>
                 <Link onClick={handleClickOpen('body')} underline='none' color={'whitesmoke'}>
@@ -162,13 +169,29 @@ export default function PostCard({id, title, content, userId, image, date}: Para
                             {content}
                         </Typography>
                     </CardContent>
+                    <Box margin={'auto'} maxWidth="70%" paddingBottom={'20px'}>
+                        <CardMedia
+                            component="img"
+                            image={image}
+                        />
+                    </Box>
                 </Link>
-                <Box margin={'auto'} maxWidth="70%" paddingBottom={'20px'}>
-                    <CardMedia
-                        component="img"
-                        image={image}
-                    />
-                </Box>
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'center',
+                    }}
+                    open={openToast}
+                    autoHideDuration={50}
+                    message={'Marked'}
+                    action={
+                        <React.Fragment>
+                            <IconButton size="small" aria-label="close" color="inherit" onClick={handleToastClose}>
+                                <CloseIcon></CloseIcon>
+                            </IconButton>
+                        </React.Fragment>
+                    }
+                />
             </Box>
         </Card>
     );
