@@ -1,5 +1,4 @@
 import {Avatar, Card, CardContent, CardHeader, Divider, IconButton, Snackbar, Typography} from '@mui/material';
-import {red} from '@mui/material/colors';
 import React, {useState} from "react";
 import LikeIcon from '@mui/icons-material/Favorite';
 import EmptyLikeIcon from '@mui/icons-material/FavoriteBorder';
@@ -14,11 +13,11 @@ type Params = {
     liked: boolean;
     date: string;
     isAuth: boolean;
-    avatar: string;
+    userAvatar: string;
     userName: string;
 }
 
-export default function CommentCard({id, content, userId, liked, date, isAuth, avatar, userName}: Params) {
+export default function CommentCard({id, content, userId, liked, date, isAuth, userAvatar, userName}: Params) {
     const [likedState, setLikedState] = useState<boolean>(Boolean(Number(liked)));
     const [authState, setAuthState] = useState<boolean>(Boolean(Number(isAuth)));
     const navigate = useNavigate();
@@ -45,7 +44,7 @@ export default function CommentCard({id, content, userId, liked, date, isAuth, a
                     'Content-Type': 'application/json;charset=utf-8',
                     'Access-Control-Allow-Credentials': 'true'
                 },
-                body: JSON.stringify({"id": id, 'liked': likedState}),
+                body: JSON.stringify({"id": userId, 'liked': likedState}),
             })
             .then((response) => {
                 return response.json()
@@ -71,8 +70,7 @@ export default function CommentCard({id, content, userId, liked, date, isAuth, a
         <Card>
             <CardHeader sx={{paddingBottom: '0px', fontSize: 'large'}}
                         avatar={
-                            <Avatar sx={{bgcolor: red[500], height: 45, width: 45}} src={avatar}>
-                            </Avatar>
+                            <Avatar src={userAvatar}> {userName[0]} </Avatar>
                         }
                         action={
                             authState
