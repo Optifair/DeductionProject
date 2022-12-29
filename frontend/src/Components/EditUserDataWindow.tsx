@@ -1,9 +1,22 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {Stack} from '@mui/system';
 import InputBase from "@mui/material/InputBase";
-import {alpha, Box, Button, Card, IconButton, Snackbar, styled, Typography} from "@mui/material";
+import {
+    alpha,
+    Box,
+    Button,
+    Card,
+    CardActionArea,
+    CardMedia,
+    Fab,
+    IconButton,
+    Snackbar,
+    styled,
+    Typography
+} from "@mui/material";
 import BackAdress from "../BackAdress";
 import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
 
 const InputDiv = styled('div')(({theme}) => ({
     position: 'relative',
@@ -18,7 +31,8 @@ const InputDiv = styled('div')(({theme}) => ({
 export default function EditUserDataWindow() {
     const [newName, setNewName] = useState('');
     const [newLogin, setNewLogin] = useState('');
-    const [newAvatar, setNewAvatar] = useState('');
+    const newAvatar = useRef('');
+    const [newAvatarPreview, setNewAvatarPreview] = useState('')
     const [newPass, setNewPass] = useState('');
     const [pass, setPass] = useState('');
 
@@ -44,9 +58,13 @@ export default function EditUserDataWindow() {
         }
 
     };
-    const handleNewAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setNewAvatar(event.target.value);
-    };
+
+    function handleNewAvatarChange(e: any) {
+        let url = URL.createObjectURL(e.target.files[0]);
+        setNewAvatarPreview(url);
+        newAvatar.current = e.target.files[0];
+    }
+
     const handleNewPassChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNewPass(event.target.value);
         setNewPassIsFocusedYet(true);
@@ -72,18 +90,21 @@ export default function EditUserDataWindow() {
     };
 
     async function fetchEditUserData() {
+        const formData = new FormData();
+        formData.append("newName", newName);
+        formData.append("newLogin", newLogin);
+        formData.append("newAvatar", newAvatar.current);
+        formData.append("newPass", newPass);
+        formData.append("pass", pass);
+
         var res = await fetch(`http://${BackAdress}/api/editUserData`
             , {
                 credentials: 'include',
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json;charset=utf-8',
                     'Access-Control-Allow-Credentials': 'true'
                 },
-                body: JSON.stringify({
-                    "newName": newName, "newLogin": newLogin,
-                    "newAvatar": newAvatar, "newPass": newPass, "pass": pass
-                }),
+                body: formData,
             })
             .then((response) => {
                 return response.json()
@@ -141,14 +162,8 @@ export default function EditUserDataWindow() {
                                    style={{marginLeft: '5%', marginRight: '5%'}}/>
                     </InputDiv>
                 </Box>
-                <Typography>New Avatar</Typography>
-                <Box border={2} borderColor={'gray'}
-                     borderRadius={'8px'}>
-                    <InputDiv>
-                        <InputBase onChange={handleNewAvatarChange}
-                                   style={{marginLeft: '5%', marginRight: '5%'}}/>
-                    </InputDiv>
-                </Box>
+
+
                 <Typography>New Password</Typography>
                 <Box border={2} borderColor={
                     newPassIsFocusedYet
@@ -174,6 +189,41 @@ export default function EditUserDataWindow() {
                                    style={{marginLeft: '5%', marginRight: '5%'}}/>
                     </InputDiv>
                 </Box>
+
+                <label htmlFor="upload-photo">
+                    <input
+                        onChange={handleNewAvatarChange}
+                        style={{display: "none"}}
+                        id="upload-photo"
+                        name="upload-photo"
+                        type="file"
+                    />
+                    <Fab
+                        size="small"
+                        component="span"
+                        aria-label="add"
+                        variant="extended"
+                    >
+                        <AddIcon/> Upload new avatar
+                    </Fab>
+                </label>
+
+                {
+                    newAvatarPreview.length > 0 &&
+
+                    <Card>
+                        <CardActionArea>
+                            <CardMedia
+                                component="img"
+                                alt="Contemplative Reptile"
+                                height="140"
+                                image={newAvatarPreview}
+                                title="Contemplative Reptile"
+                            />
+                        </CardActionArea>
+                    </Card>
+                }
+
                 <Button onClick={editUserData} variant="outlined"
                         style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}> Edit</Button>
             </Stack>
