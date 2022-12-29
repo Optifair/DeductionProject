@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import {alpha, Avatar, IconButton, Snackbar, Stack, styled} from "@mui/material";
 import InputBase from "@mui/material/InputBase";
-import {red} from "@mui/material/colors";
 import SendIcon from '@mui/icons-material/Send';
 import BackAdress from "../BackAdress";
 import {useNavigate} from "react-router-dom";
@@ -20,11 +19,12 @@ const InputDiv = styled('div')(({theme}) => ({
 
 type Params = {
     post_id: string;
-    avatar: string;
+    userAvatar: string;
+    userName: string;
     updateTemplate: () => void;
 }
 
-export default function AddCommentForm({post_id, avatar, updateTemplate}: Params) {
+export default function AddCommentForm({post_id, userAvatar, userName, updateTemplate}: Params) {
 
     const [content, setContent] = useState('');
     const navigate = useNavigate();
@@ -81,8 +81,9 @@ export default function AddCommentForm({post_id, avatar, updateTemplate}: Params
 
     return (
         <Stack style={{width: '95%', justifyContent: 'space-between'}} spacing={2} direction={"row"}>
-            <Avatar sx={{bgcolor: red[500], height: 45, width: 45}} src={avatar}>
-            </Avatar>
+            {
+                <Avatar src={userAvatar}> {userName[0]} </Avatar>
+            }
             <InputDiv>
                 <InputBase onChange={handleContentChange} multiline placeholder={'Comment'}
                            style={{width: '96%', marginLeft: '2%', marginRight: '2%'}}/>
