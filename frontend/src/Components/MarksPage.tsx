@@ -76,14 +76,19 @@ export default function MarksPage() {
 
     return (
         <Stack spacing={3} alignItems={'center'} paddingBottom={'30px'}>
-            <Stack spacing={4} className="s" alignItems={'center'} paddingTop={'90px'}>
-                {posts.map(function ({id, title, content, user_id, image, date}) {
+            <Stack spacing={4} className="s" alignItems={'center'} paddingTop={'90px'} width={'100%'}>
+                {posts.map(function ({id, title, content, user_id, image, date, avatar, name}) {
                     return <PostCard key={id} id={id} title={title} content={content} userId={user_id}
-                                     image={image} date={date}/>
+                                     image={image} date={date} isAuth={true} userName={name}
+                                     userAvatar={avatar}/>
                 })}
             </Stack>
-            <Button onClick={loadNewPosts} variant="outlined"
-                    style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}>Show more</Button>
+            {
+                posts.length > 1
+                &&
+                <Button onClick={loadNewPosts} variant="outlined"
+                        style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}>Show more</Button>
+            }
             <ScrollTopButton/>
         </Stack>
     );
