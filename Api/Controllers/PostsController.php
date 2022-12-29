@@ -5,6 +5,7 @@ namespace Api\Controllers;
 use Api\Models\Repositories\PostRepository;
 use Api\Models\Repositories\UserRepository;
 
+
 class PostsController extends Controller
 {
     public function getPostsFromDatabase()
@@ -50,21 +51,21 @@ class PostsController extends Controller
     {
         self::setCORSHeaders();
         $authRes = self::checkAuth();
-        if (!empty(file_get_contents('php://input'))) {
+        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
             if ($authRes['auth']) {
-                $json = file_get_contents('php://input');
-                $data = json_decode($json);
 
-                $content = $data->content;
-                $title = $data->title;
-                $image = '';
-                if (!empty($data->image)) {
-                    $image = $data->image;
-                }
+                $content = $_POST['content'];
+                $title = $_POST['title'];
+
+                $image = $_FILES['image'];
+
+                move_uploaded_file($image['tmp_name'], './Images/' . substr($image['tmp_name'], 8) . '.png');
+                $image_path = 'http://' . 'deductionproject' . '/Images/' . substr($image['tmp_name'], 8) . '.png';
+
                 $login = $_COOKIE['login'];
                 $user_id = UserRepository::findUserByLogin($login)['id'];
 
-                PostRepository::addPost($user_id, $title, $content, $image);
+                PostRepository::addPost($user_id, $title, $content, $image_path);
             }
             echo json_encode($authRes, JSON_PRETTY_PRINT);
         }
