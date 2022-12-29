@@ -1,9 +1,22 @@
-import React, {useState} from "react";
-import {alpha, Button, IconButton, Snackbar, Stack, styled, Typography} from "@mui/material";
+import React, {useRef, useState} from "react";
+import {
+    alpha,
+    Button,
+    Card,
+    CardActionArea,
+    CardMedia,
+    Fab,
+    IconButton,
+    Snackbar,
+    Stack,
+    styled,
+    Typography
+} from "@mui/material";
 import InputBase from "@mui/material/InputBase";
 import BackAdress from "../BackAdress";
 import {useNavigate} from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
 
 const InputDiv = styled('div')(({theme}) => ({
     position: 'relative',
@@ -24,7 +37,8 @@ export default function AddPostForm({updateTemplate}: Props) {
 
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [image, setImage] = useState('');
+    const image = useRef('');
+    const [imagePreview, setImagePreview] = useState('')
     const navigate = useNavigate();
 
     const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,9 +49,11 @@ export default function AddPostForm({updateTemplate}: Props) {
         setContent(event.target.value);
     };
 
-    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setImage(event.target.value);
-    };
+    function handleImageChange(e: any) {
+        let url = URL.createObjectURL(e.target.files[0]);
+        setImagePreview(url);
+        image.current = e.target.files[0];
+    }
 
     const [open, setOpen] = React.useState(false);
     const handleClick = () => {
@@ -51,15 +67,19 @@ export default function AddPostForm({updateTemplate}: Props) {
     };
 
     async function fetchAddPost() {
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("content", content);
+        formData.append("image", image.current);
+
         var res = await fetch(`http://${BackAdress}/api/addPost`
             , {
                 credentials: 'include',
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json;charset=utf-8',
                     'Access-Control-Allow-Credentials': 'true'
                 },
-                body: JSON.stringify({"title": title, "content": content, "image": image}),
+                body: formData,
             })
             .then((response) => {
                 return response.json()
@@ -71,12 +91,12 @@ export default function AddPostForm({updateTemplate}: Props) {
     }
 
     async function addPost() {
-        if (content !== '' && image !== '' && title !== '') {
+        if (content !== '' && imagePreview.length > 0 && title !== '') {
             const isAdded = Boolean(Number(await fetchAddPost()));
             if (isAdded) {
                 updateTemplate();
                 setContent('');
-                setImage('');
+                setImagePreview('');
                 setTitle('');
             } else {
                 navigate("/auth")
@@ -107,10 +127,38 @@ export default function AddPostForm({updateTemplate}: Props) {
                     <InputBase onChange={handleContentChange} multiline placeholder={'Content'}
                                style={{width: '96%', marginLeft: '2%', marginRight: '2%'}}/>
                 </InputDiv>
-                <InputDiv>
-                    <InputBase onChange={handleImageChange} placeholder={'Image'}
-                               style={{width: '96%', marginLeft: '2%', marginRight: '2%'}}/>
-                </InputDiv>
+                <label htmlFor="upload-photo">
+                    <input
+                        onChange={handleImageChange}
+                        style={{display: "none"}}
+                        id="upload-photo"
+                        name="upload-photo"
+                        type="file"
+                    />
+                    <Fab
+                        size="small"
+                        component="span"
+                        aria-label="add"
+                        variant="extended"
+                    >
+                        <AddIcon/> Upload photo
+                    </Fab>
+                </label>
+                {
+                    imagePreview.length > 0 &&
+
+                    <Card>
+                        <CardActionArea>
+                            <CardMedia
+                                component="img"
+                                alt="Contemplative Reptile"
+                                height="140"
+                                image={imagePreview}
+                                title="Contemplative Reptile"
+                            />
+                        </CardActionArea>
+                    </Card>
+                }
                 <Button onClick={addPost} style={{width: 'max-content'}}>
                     Publish
                 </Button>
