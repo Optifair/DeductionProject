@@ -87,10 +87,11 @@ class UsersController extends Controller
             ];
 
             $user = UserRepository::findUserByLogin($login);
+            $name = $user['name'];
             if (!empty($user)) {
                 $ret['isFound'] = true;
                 $key = UserRepository::createPasswordResetCodeForUser($login);
-                MailSender::sendMail($login, self::frontPath . "/resetPassword/:" . $key);
+                MailSender::sendMail($login, $name, self::frontPath . "/changePassword/" . $key);
             }
 
             echo json_encode($ret, JSON_PRETTY_PRINT);
@@ -166,6 +167,32 @@ class UsersController extends Controller
                             UserRepository::updatePass($login, $newPass);
                         }
                     }
+                }
+            }
+            echo json_encode($ret, JSON_PRETTY_PRINT);
+        }
+    }
+
+    public function editPassword()
+    {
+        self::setCORSHeaders();
+        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
+
+            $key = $_POST['key'];
+            $login = $_POST['login'];
+            $newPass = $_POST['newPass'];
+
+            $ret = [
+                'isEdit' => false
+            ];
+
+
+            $user = UserRepository::findUserByLogin($login);
+            if ($user['pass_reset_code'] == $key) {
+                $ret['isEdit'] = true;
+                if ($newPass != '') {
+                    UserRepository::updatePass($login, $newPass);
+                    UserRepository::resetPasswordResetCodeForUser($login);
                 }
             }
             echo json_encode($ret, JSON_PRETTY_PRINT);

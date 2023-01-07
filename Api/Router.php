@@ -28,6 +28,7 @@ class Router
             '/api/cookieAuth' => ['UsersController@authUserWithCookie'],
             '/api/getUserData' => ['UsersController@getUserData'],
             '/api/editUserData' => ['UsersController@editUserData'],
+            '/api/editPassword' => ['UsersController@editPassword'],
             '/api/sendPasswordResetLink' => ['UsersController@sendPasswordResetLink'],
             '/api/checkPasswordResetKey' => ['UsersController@checkPasswordResetKey'],
         ];
