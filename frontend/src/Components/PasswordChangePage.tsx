@@ -1,8 +1,10 @@
-import React, {SyntheticEvent, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Stack} from '@mui/system';
 import {useNavigate, useParams} from 'react-router-dom';
-import {alpha, Snackbar, SnackbarCloseReason, styled} from '@mui/material';
+import {alpha, Box, Button, IconButton, Snackbar, styled, Typography} from '@mui/material';
 import BackAdress from "../BackAdress";
+import CloseIcon from "@mui/icons-material/Close";
+import InputBase from "@mui/material/InputBase";
 
 const InputDiv = styled('div')(({theme}) => ({
     position: 'relative',
@@ -20,13 +22,27 @@ export default function PasswordChangePage() {
     let login = "";
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
+    const [newPass, setNewPass] = useState('');
+    const [newPassIsFocusedYet, setNewPassIsFocusedYet] = useState(false);
+    const PASS_REGEXP = /(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/g
 
+    const [newPassValid, setNewPassValid] = useState(true);
 
     const [open, setOpen] = React.useState(false);
+
+    const handleNewPassChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setNewPass(event.target.value);
+        setNewPassIsFocusedYet(true);
+        if (PASS_REGEXP.test(event.target.value)) {
+            setNewPassValid(true);
+        } else {
+            setNewPassValid(false);
+        }
+    };
     const handleClick = () => {
         setOpen(true);
     };
-    const handleClose = (event: Event | SyntheticEvent<any, Event>, reason: SnackbarCloseReason) => {
+    const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
@@ -56,6 +72,34 @@ export default function PasswordChangePage() {
         return res;
     }
 
+    async function fetchEditPassword() {
+        const formData = new FormData();
+        let passkey = "";
+        if (typeof key != "undefined") {
+            passkey = key;
+        }
+        formData.append("key", passkey);
+        formData.append("login", login);
+        formData.append("newPass", newPass);
+
+        var res = await fetch(`http://${BackAdress}/api/editPassword`
+            , {
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                    'Access-Control-Allow-Credentials': 'true'
+                },
+                body: formData,
+            })
+            .then((response) => {
+                return response.json()
+            })
+            .then((data) => {
+                return data
+            });
+        return res;
+    }
+
     async function checkKey() {
         let checkSuccess = false;
         if (typeof key != "undefined") {
@@ -67,10 +111,23 @@ export default function PasswordChangePage() {
         }
         if (!checkSuccess) {
             navigate("/");
-            setMessage("The link you clicked is out of date");
-            handleClick();
         }
     }
+
+    async function editPassword() {
+        if (newPassValid) {
+            const res = await fetchEditPassword();
+            const isEdit = Boolean(Number(res['isEdit']));
+            if (isEdit) {
+                setMessage("You have successfully edit your password!");
+                navigate("/auth");
+            } else {
+                setMessage("This link is outdated!");
+            }
+        }
+        handleClick()
+    }
+
 
     useEffect(() => {
         checkKey()
@@ -79,7 +136,26 @@ export default function PasswordChangePage() {
     return (
         <Stack spacing={3} alignItems={'center'} paddingBottom={'30px'}>
             <Stack spacing={2} className="s" alignItems={'center'} paddingTop={'90px'} minWidth={'100%'}>
+                <Typography variant='body2'>The password must contain at least one uppercase letter and one number and
+                    be
+                    more than 6 characters long</Typography>
+                <Typography>Enter the password</Typography>
+                <Box border={2} borderColor={
+                    newPassIsFocusedYet
+                        ?
+                        newPassValid ? 'green' : 'red'
+                        :
+                        'gray'
+                }
+                     borderRadius={'8px'}>
+                    <InputDiv>
+                        <InputBase onChange={handleNewPassChange} type='password'
+                                   style={{marginLeft: '5%', marginRight: '5%'}}/>
+                    </InputDiv>
+                </Box>
 
+                <Button onClick={editPassword} variant="outlined"
+                        style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}> Edit password</Button>
             </Stack>
             <Snackbar
                 anchorOrigin={{
@@ -87,12 +163,13 @@ export default function PasswordChangePage() {
                     horizontal: 'center',
                 }}
                 open={open}
-                onClose={handleClose}
                 autoHideDuration={50}
                 message={message}
                 action={
                     <React.Fragment>
-
+                        <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
+                            <CloseIcon></CloseIcon>
+                        </IconButton>
                     </React.Fragment>
                 }
             />
