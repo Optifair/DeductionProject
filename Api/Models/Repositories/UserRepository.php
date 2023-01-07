@@ -30,7 +30,7 @@ class UserRepository extends Repository
         $salt = '';
         $saltLength = 8;
         for ($i = 0; $i < $saltLength; $i++) {
-            $salt .= chr(mt_rand(33, 126));
+            $salt .= chr(mt_rand(97, 122));
         }
         return $salt;
     }
@@ -38,6 +38,16 @@ class UserRepository extends Repository
     public static function createPasswordResetCodeForUser($login)
     {
         $code = self::generateSalt();
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('pass_reset_code')->values($code);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+        return $code;
+    }
+
+    public static function resetPasswordResetCodeForUser($login)
+    {
+        $code = "";
         self::prepareExecution();
         $query = QO::update()->table('users')->columns('pass_reset_code')->values($code);
         $query->where(['login', $login, '=']);
@@ -57,7 +67,8 @@ class UserRepository extends Repository
             'salt',
             'cookie',
             'avatar',
-            'rating'
+            'rating',
+            'pass_reset_code'
         );
         $queryResult = self::executeQuery($query);
         $user = [];
