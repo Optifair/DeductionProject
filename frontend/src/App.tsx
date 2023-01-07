@@ -10,6 +10,8 @@ import SearchPage from './Components/SearchPage';
 import RegistrationPage from "./Components/RegistrationPage";
 import ProfilePage from "./Components/ProfilePage";
 import MarksPage from "./Components/MarksPage";
+import PasswordChangePage from "./Components/PasswordChangePage";
+import ToastBar from "./Components/ToastBar";
 
 const darkTheme = createTheme({
     palette: {
@@ -25,6 +27,7 @@ export default function App() {
         {path: '/registration', element: <RegistrationPage/>},
         {path: '/profile', element: <ProfilePage/>},
         {path: '/marks', element: <MarksPage/>},
+        {path: '/changePassword/:key', element: <PasswordChangePage/>},
         {path: '/404', element: <NotFoundPage/>},
     ];
 
@@ -39,6 +42,7 @@ export default function App() {
                             <Route path={route.path} element={route.element} key={key}/>
                         ))}
                     </Routes>
+                    <ToastBar/>
                 </Router>
             </Box>
         </ThemeProvider>
