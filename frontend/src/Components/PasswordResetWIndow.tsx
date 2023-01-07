@@ -20,9 +20,16 @@ export default function PasswordResetWindow() {
     const [loginValid, setLoginValid] = useState(true);
     const [message, setMessage] = useState('');
     const [loginIsFocusedYet, setLoginIsFocusedYet] = useState(false);
+    const EMAIL_REGEXP = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+
     const handleLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setLoginIsFocusedYet(true);
         setLogin(event.target.value);
+        if (EMAIL_REGEXP.test(event.target.value)) {
+            setLoginValid(true);
+        } else {
+            setLoginValid(false);
+        }
     };
 
     const [open, setOpen] = React.useState(false);
@@ -58,11 +65,10 @@ export default function PasswordResetWindow() {
         return res;
     }
 
-    async function editUserData() {
+    async function sendPasswordResetLink() {
         if (loginValid) {
             const res = await fetchSendPasswordResetLink();
             const isFound = Boolean(Number(res['isFound']));
-
             if (isFound) {
                 setMessage("Reset password link sent to your email");
             } else {
@@ -90,8 +96,8 @@ export default function PasswordResetWindow() {
                     </InputDiv>
                 </Box>
 
-                <Button onClick={editUserData} variant="outlined"
-                        style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}> Edit</Button>
+                <Button onClick={sendPasswordResetLink} variant="outlined"
+                        style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}> Send link</Button>
             </Stack>
             <Snackbar
                 anchorOrigin={{
