@@ -2,19 +2,51 @@
 
 namespace Api\Services;
 
+use Api\Services\PHPMailer\Exception;
+use Api\Services\PHPMailer\PHPMailer;
+
 class MailSender
 {
-    public static function sendMail($to, $link)
+    public static function sendMail($email, $name, $link)
     {
-        $subject = 'Reset Password';
-        $message = "Hello, you have requested a password reset on your account at deductionproject. 
-        Follow the link below if you want to do this. If you have not requested a password reset, 
-        do not follow the link below." . "\r\n" . $link;
+        $title = "Password reset on deductionproject";
+        $body = "Hello, <b>$name</b><br>   
+                You requested a password reset at deductionproject. 
+                Click the link below to change your password.<br>
+                $link";
+        $mail = new PHPMailer();
+        try {
+            $mail->isSMTP();
+            $mail->CharSet = "UTF-8";
+            $mail->SMTPAuth = true;
+            $mail->Debugoutput = function ($str) {
+                $GLOBALS['status'][] = $str;
+            };
 
-        $headers = 'From:deductionproject@mail.ru' . "\r\n" .
-            'Reply-To:deductionproject@mail.ru' . "\r\n" .
-            'X-Mailer:PHP/' . phpversion();
+            $mail->Subject = 'Password reset';
+            $mail->Host = 'smtp.m.ru';
+            $mail->Username = 'user';
+            $mail->Password = 'pass';
+            $mail->SMTPSecure = '';
+            $mail->Port = 1;
+            $mail->setFrom('mail', 'name');
 
-        mail($to, $subject, $message, $headers);
+
+            $mail->addAddress($email);
+
+            $mail->isHTML(true);
+            $mail->Subject = $title;
+            $mail->Body = $body;
+
+            if ($mail->send()) {
+                $result = "success";
+            } else {
+                $result = "error";
+            }
+
+        } catch (Exception $e) {
+            $result = "error";
+            $status = "Error status: {$mail->ErrorInfo}";
+        }
     }
 }
