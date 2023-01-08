@@ -13,7 +13,7 @@ class Router
         }
 
         $urls = [
-            '/api/posts' => ['PostsController@getPostsFromDatabase'],
+            '/api/posts' => ['PostsController@getPosts'],
             '/api/searchPosts' => ['PostsController@searchPosts'],
             '/api/getCurrentPost' => ['PostsController@getCurrentPost'],
             '/api/addPost' => ['PostsController@addPost'],

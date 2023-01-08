@@ -8,7 +8,7 @@ use Api\Models\Repositories\UserRepository;
 
 class PostsController extends Controller
 {
-    public function getPostsFromDatabase()
+    public function getPosts()
     {
         self::setCORSHeaders();
 
