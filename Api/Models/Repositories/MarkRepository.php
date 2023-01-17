@@ -74,7 +74,7 @@ class MarkRepository extends Repository
     {
         self::prepareExecution();
         $query = QO::delete()->table('marks')->where(['mark_id', $mark_id, '=']);
-        self::executeQuery($query)[0];
+        self::executeQuery($query, false);
     }
 
 
