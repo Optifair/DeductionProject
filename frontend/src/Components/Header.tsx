@@ -210,12 +210,6 @@ export default function Header() {
                                 {
                                     authState
                                         ?
-                                        // avatar.length < 1
-                                        //     ?
-                                        //     <Avatar src={avatar}>
-                                        //     </Avatar>
-                                        //     :
-                                        //     <Avatar> {name[0]} </Avatar>
                                         <Avatar src={avatar}> {name[0]} </Avatar>
                                         :
                                         <Typography>
