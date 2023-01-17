@@ -77,10 +77,10 @@ export default function MarksPage() {
     return (
         <Stack spacing={3} alignItems={'center'} paddingBottom={'30px'}>
             <Stack spacing={4} className="s" alignItems={'center'} paddingTop={'90px'} width={'100%'}>
-                {posts.map(function ({id, title, content, user_id, image, date, avatar, name}) {
+                {posts.map(function ({id, title, content, user_id, image, date, avatar, name, marked}) {
                     return <PostCard key={id} id={id} title={title} content={content} userId={user_id}
-                                     image={image} date={date} isAuth={true} userName={name}
-                                     userAvatar={avatar}/>
+                                     image={image} date={date} isAuth={true} userName={name} userAvatar={avatar}
+                                     marked={true}/>
                 })}
             </Stack>
             {

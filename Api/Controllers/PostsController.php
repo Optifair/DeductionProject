@@ -15,7 +15,16 @@ class PostsController extends Controller
         $perPage = $_GET['limit'] ?? 5;
         $pageNumber = $_GET['offset'] ?? 0;
 
-        $postsArray['posts'] = PostRepository::getPosts($perPage, $pageNumber);
+        $authRes = self::checkAuth();
+        if ($authRes['auth']) {
+            $login = $_COOKIE['login'];
+            $userId = UserRepository::findUserByLogin($login)['id'];
+
+            $postsArray['posts'] = PostRepository::getPosts($perPage, $pageNumber, $userId);
+        } else {
+            $postsArray['posts'] = PostRepository::getPosts($perPage, $pageNumber);
+        }
+
 
         echo json_encode($postsArray, JSON_PRETTY_PRINT);
     }

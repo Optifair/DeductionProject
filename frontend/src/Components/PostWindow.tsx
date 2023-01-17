@@ -1,4 +1,5 @@
-import SubscribeIcon from '@mui/icons-material/Bookmarks';
+import SubscribeIcon from '@mui/icons-material/Bookmark';
+import EmptySubscribeIcon from '@mui/icons-material/BookmarkBorder';
 import {
     Avatar,
     Box,
@@ -9,7 +10,6 @@ import {
     CardMedia,
     Divider,
     IconButton,
-    Snackbar,
     Typography
 } from '@mui/material';
 import {Stack} from "@mui/system";
@@ -18,7 +18,6 @@ import Comment from './Comment';
 import BackAdress from "../BackAdress";
 import {useNavigate} from "react-router-dom";
 import AddCommentForm from "./AddCommentForm";
-import CloseIcon from "@mui/icons-material/Close";
 
 
 type Params = {
@@ -31,28 +30,30 @@ type Params = {
     isAuth: boolean;
     userAvatar: string;
     userName: string;
+    marked: boolean;
 }
 
-export default function PostWindow({id, title, content, userId, image, date, isAuth, userName, userAvatar}: Params) {
+export default function PostWindow({
+                                       id,
+                                       title,
+                                       content,
+                                       userId,
+                                       image,
+                                       date,
+                                       isAuth,
+                                       userAvatar,
+                                       userName,
+                                       marked
+                                   }: Params) {
     const [commentsTotal, setCommentsTotal] = useState(undefined);
     const [comments, setComments] = useState([]);
     const [commentsListSize, setCommentsListSize] = useState<number>(10);
+    const [markedState, setMarkedState] = useState<boolean>(Boolean(Number(marked)));
     const [authState, setAuthState] = useState<boolean>(Boolean(Number(isAuth)));
 
     const navigate = useNavigate();
 
     const offset = 0;
-
-    const [openToast, setOpenToast] = React.useState(false);
-    const handleToastClick = () => {
-        setOpenToast(true);
-    };
-    const handleToastClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-        setOpenToast(false);
-    };
 
     async function fetchComments(Size: any, offset: any) {
         const res = await fetch(
@@ -98,9 +99,9 @@ export default function PostWindow({id, title, content, userId, image, date, isA
     }
 
     async function MarkPost() {
-        const isAdded = Boolean(await fetchMarkPost());
-        if (isAdded) {
-            handleToastClick();
+        const isAdded = await fetchMarkPost()
+        if (Boolean(Number(isAdded['auth']))) {
+            setMarkedState(!markedState);
         } else {
             navigate("/auth")
         }
@@ -117,7 +118,10 @@ export default function PostWindow({id, title, content, userId, image, date, isA
                                 authState
                                 &&
                                 <IconButton aria-label="settings" onClick={MarkPost}>
-                                    <SubscribeIcon fontSize='large'/>
+                                    {markedState
+                                        ? <SubscribeIcon fontSize='large'/>
+                                        : <EmptySubscribeIcon fontSize='large'/>
+                                    }
                                 </IconButton>
                             }
                             title={
@@ -169,22 +173,6 @@ export default function PostWindow({id, title, content, userId, image, date, isA
                         }
                     </Stack>
                 </CardContent>
-                <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    open={openToast}
-                    autoHideDuration={50}
-                    message={'Marked'}
-                    action={
-                        <React.Fragment>
-                            <IconButton size="small" aria-label="close" color="inherit" onClick={handleToastClose}>
-                                <CloseIcon></CloseIcon>
-                            </IconButton>
-                        </React.Fragment>
-                    }
-                />
             </Box>
         </Card>
     );

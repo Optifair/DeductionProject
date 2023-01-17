@@ -6,7 +6,7 @@ use Api\Models\Tools\QueryObject as QO;
 
 class PostRepository extends Repository
 {
-    public static function getPosts($perPage, $pageNumber): array
+    public static function getPosts($perPage, $pageNumber, $userId = ''): array
     {
         self::prepareExecution();
         $query = QO::select()->table('posts')->join(['users', 'posts'], ['id', 'user_id'])->limit($perPage)
@@ -19,10 +19,27 @@ class PostRepository extends Repository
             'image',
             'avatar',
             'date',
-            'name'
+            'name',
+            'marked'
         );
 
         $posts = self::executeQuery($query);
+        if ($userId != '') {
+            $marksQuery = QO::select()->table('marks')->where(['user_id', $userId, '='])
+                ->orderBy(['mark_date', 'DESC']);
+            $marksQuery->columns(
+                'post_id',
+            );
+            $marks = self::executeQuery($marksQuery);
+            foreach ($marks as &$mark) {
+                $markedPostId = $mark['post_id'];
+                foreach ($posts as &$post) {
+                    if ($post['id'] == $markedPostId) {
+                        $post['marked'] = '1';
+                    }
+                }
+            }
+        }
         return $posts;
     }
 

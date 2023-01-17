@@ -17,7 +17,14 @@ export default function PostsListPage() {
     async function fetchPosts() {
         const res = await fetch(
             `http://${BackAdress}/api/posts?limit=${pageSize}&offset=${offset}`
-        );
+            , {
+                credentials: 'include',
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'Access-Control-Allow-Credentials': 'true'
+                }
+            });
 
         return await res.json();
     }
@@ -71,9 +78,10 @@ export default function PostsListPage() {
                     &&
                     <AddPostForm updateTemplate={updateTemplate}></AddPostForm>
                 }
-                {posts.map(function ({id, title, content, user_id, image, date, avatar, name}) {
+                {posts.map(function ({id, title, content, user_id, image, date, avatar, name, marked}) {
                     return <PostCard key={id} id={id} title={title} content={content} userId={user_id}
-                                     image={image} date={date} isAuth={authState} userName={name} userAvatar={avatar}/>
+                                     image={image} date={date} isAuth={authState} userName={name} userAvatar={avatar}
+                                     marked={marked}/>
                 })}
             </Stack>
 

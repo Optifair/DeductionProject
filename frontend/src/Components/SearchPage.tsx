@@ -164,10 +164,10 @@ export default function SearchPage() {
                         />
                     </Stack>
                 </LocalizationProvider>
-                {posts.map(function ({id, title, content, user_id, image, date, name, avatar}) {
+                {posts.map(function ({id, title, content, user_id, image, date, avatar, name, marked}) {
                     return <PostCard key={id} id={id} title={title} content={content} userId={user_id}
-                                     image={image} date={date} isAuth={true} userName={name}
-                                     userAvatar={avatar}/>
+                                     image={image} date={date} isAuth={authState} userName={name} userAvatar={avatar}
+                                     marked={marked}/>
                 })}
             </Stack>
             {

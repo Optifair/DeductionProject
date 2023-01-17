@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import SubscribeIcon from '@mui/icons-material/Bookmarks';
+import SubscribeIcon from '@mui/icons-material/Bookmark';
+import EmptySubscribeIcon from '@mui/icons-material/BookmarkBorder';
 import {
     Avatar,
     Box,
@@ -13,7 +14,6 @@ import {
     IconButton,
     IconButtonProps,
     Link,
-    Snackbar,
     styled,
     Typography
 } from '@mui/material';
@@ -21,7 +21,6 @@ import PostWindow from './PostWindow';
 import {Stack} from "@mui/system";
 import BackAdress from "../BackAdress";
 import {useNavigate} from "react-router-dom";
-import CloseIcon from "@mui/icons-material/Close";
 
 
 type Params = {
@@ -34,6 +33,7 @@ type Params = {
     isAuth: boolean;
     userAvatar: string;
     userName: string;
+    marked: boolean;
 }
 
 
@@ -52,25 +52,24 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
     }),
 }));
 
-export default function PostCard({id, title, content, userId, image, date, isAuth, userAvatar, userName}: Params) {
+export default function PostCard({
+                                     id,
+                                     title,
+                                     content,
+                                     userId,
+                                     image,
+                                     date,
+                                     isAuth,
+                                     userAvatar,
+                                     userName,
+                                     marked
+                                 }: Params) {
     const [open, setOpen] = React.useState(false);
     const [scroll, setScroll] = React.useState<DialogProps[ 'scroll' ]>('paper');
+    const [markedState, setMarkedState] = useState<boolean>(Boolean(Number(marked)));
     const [authState, setAuthState] = useState<boolean>(Boolean(Number(isAuth)));
 
     const navigate = useNavigate();
-
-    const [openToast, setOpenToast] = React.useState(false);
-    const handleToastClick = () => {
-        setOpenToast(true);
-    };
-    const handleToastClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-        setOpenToast(false);
-    };
-
-
     const handleClickOpen = (scrollType: DialogProps[ 'scroll' ]) => () => {
         setOpen(true);
         setScroll(scrollType);
@@ -107,9 +106,9 @@ export default function PostCard({id, title, content, userId, image, date, isAut
     }
 
     async function MarkPost() {
-        const isAdded = Boolean(await fetchMarkPost())
-        if (isAdded) {
-            handleToastClick();
+        const isAdded = await fetchMarkPost()
+        if (Boolean(Number(isAdded['auth']))) {
+            setMarkedState(!markedState);
         } else {
             navigate("/auth")
         }
@@ -127,7 +126,10 @@ export default function PostCard({id, title, content, userId, image, date, isAut
                                 authState
                                 &&
                                 <IconButton aria-label="settings" onClick={MarkPost}>
-                                    <SubscribeIcon fontSize='large'/>
+                                    {markedState
+                                        ? <SubscribeIcon fontSize='large'/>
+                                        : <EmptySubscribeIcon fontSize='large'/>
+                                    }
                                 </IconButton>
                             }
                             title={
@@ -157,7 +159,7 @@ export default function PostCard({id, title, content, userId, image, date, isAut
                     <DialogContent dividers={scroll === 'paper'} style={{padding: '0px 0px 0px 0px'}}>
                         <PostWindow id={id} title={title} content={content} userId={userId}
                                     image={image} date={date} isAuth={isAuth} userAvatar={userAvatar}
-                                    userName={userName}/>
+                                    userName={userName} marked={markedState}/>
                     </DialogContent>
                 </Dialog>
                 <Link onClick={handleClickOpen('body')} underline='none' color={'whitesmoke'}>
@@ -176,22 +178,6 @@ export default function PostCard({id, title, content, userId, image, date, isAut
                         />
                     </Box>
                 </Link>
-                <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    open={openToast}
-                    autoHideDuration={50}
-                    message={'Marked'}
-                    action={
-                        <React.Fragment>
-                            <IconButton size="small" aria-label="close" color="inherit" onClick={handleToastClose}>
-                                <CloseIcon></CloseIcon>
-                            </IconButton>
-                        </React.Fragment>
-                    }
-                />
             </Box>
         </Card>
     );
