@@ -11,13 +11,11 @@ class UsersController extends Controller
     {
         self::setCORSHeaders();
 
-        if (!empty(file_get_contents('php://input'))) {
-            $json = file_get_contents('php://input');
-            $data = json_decode($json);
+        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
 
-            $login = $data->login;
-            $password = $data->pass;
-            $remember = $data->rem = false;
+            $login = $_POST['login'];
+            $password = $_POST['pass'];
+            $remember = $_POST['rem'] = false;
 
             $user = UserRepository::findUserByLogin($login);
             $ret = ['auth' => false];

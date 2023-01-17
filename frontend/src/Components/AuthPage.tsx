@@ -34,8 +34,6 @@ export default function AuthPage() {
 
     const navigate = useNavigate();
 
-    const [message, setMessage] = useState('');
-
     const handleLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setLogin(event.target.value);
     };
@@ -43,14 +41,18 @@ export default function AuthPage() {
         setPass(event.target.value);
     };
 
+    const [message, setMessage] = useState('');
     const [open, setOpen] = React.useState(false);
+
     const handleClick = () => {
         setOpen(true);
     };
-    const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
+
         setOpen(false);
     };
 
@@ -66,15 +68,19 @@ export default function AuthPage() {
     };
 
     async function fetchUser() {
+        const formData = new FormData();
+
+        formData.append("login", login);
+        formData.append("pass", pass);
+
         var res = await fetch(`http://${BackAdress}/api/authUser`
             , {
                 credentials: 'include',
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json;charset=utf-8',
                     'Access-Control-Allow-Credentials': 'true'
                 },
-                body: JSON.stringify({"login": login, "pass": pass}),
+                body: formData,
             })
             .then((response) => {
                 return response.json()
@@ -179,7 +185,8 @@ export default function AuthPage() {
                     horizontal: 'center',
                 }}
                 open={open}
-                autoHideDuration={50}
+                autoHideDuration={1500}
+                onClose={handleClose}
                 message={message}
                 action={
                     <React.Fragment>
