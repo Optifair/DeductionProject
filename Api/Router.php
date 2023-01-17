@@ -31,6 +31,7 @@ class Router
             '/api/editPassword' => ['UsersController@editPassword'],
             '/api/sendPasswordResetLink' => ['UsersController@sendPasswordResetLink'],
             '/api/checkPasswordResetKey' => ['UsersController@checkPasswordResetKey'],
+            '/admin' => ['AdminController@AdTest'],
         ];
 
         $availableRoutes = array_keys($urls);
