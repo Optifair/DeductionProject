@@ -6,6 +6,19 @@ use Api\Models\Tools\QueryObject as QO;
 
 class MarkRepository extends Repository
 {
+    public static function getMarksForAdmin(): array
+    {
+        self::prepareExecution();
+        $query = QO::select()->table('marks');
+        $query->columns(
+            'mark_id',
+            'user_id',
+            'post_id',
+            'mark_date'
+        );
+        $marks = self::executeQuery($query);
+        return $marks;
+    }
 
     public static function getMarks($login, $perPage, $pageNumber): array
     {

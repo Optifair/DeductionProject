@@ -6,6 +6,20 @@ use Api\Models\Tools\QueryObject as QO;
 
 class PostRepository extends Repository
 {
+    public static function getPostsForAdmin(): array
+    {
+        self::prepareExecution();
+        $query = QO::select()->table('posts');
+        $query->columns(
+            'id',
+            'user_id',
+            'title',
+            'date'
+        );
+        $posts = self::executeQuery($query);
+        return $posts;
+    }
+
     public static function getPosts($perPage, $pageNumber, $userId = ''): array
     {
         self::prepareExecution();

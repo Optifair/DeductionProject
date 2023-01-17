@@ -6,6 +6,19 @@ use Api\Models\Tools\QueryObject as QO;
 
 class UserRepository extends Repository
 {
+    public static function getUsersForAdmin()
+    {
+        self::prepareExecution();
+        $query = QO::select()->table('users');
+        $query->columns(
+            'id',
+            'name',
+            'login'
+        );
+        $users = self::executeQuery($query);
+        return $users;
+    }
+
     public static function addUser($name, $login, $pass)
     {
         $salt = self::generateSalt();

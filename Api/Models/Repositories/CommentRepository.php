@@ -6,6 +6,22 @@ use Api\Models\Tools\QueryObject as QO;
 
 class CommentRepository extends Repository
 {
+    public static function getCommentsForAdmin(): array
+    {
+        self::prepareExecution();
+        $query = QO::select()->table('comments');
+        $query->columns(
+            'id',
+            'user_id',
+            'post_id',
+            'content',
+            'liked',
+            'date'
+        );
+        $comments = self::executeQuery($query);
+        return $comments;
+    }
+
     public static function getComments($post_id, $perPage, $pageNumber): array
     {
         self::prepareExecution();
