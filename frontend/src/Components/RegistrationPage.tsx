@@ -35,7 +35,6 @@ export default function RegistrationPage() {
     const [passIsFocusedYet, setPassIsFocusedYet] = useState(false);
     const [repeatedPassIsFocusedYet, setRepeatedPassIsFocusedYet] = useState(false);
 
-    const [message, setMessage] = useState('');
     const EMAIL_REGEXP = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
     const PASS_REGEXP = /(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/g
 
@@ -82,14 +81,18 @@ export default function RegistrationPage() {
         }
     };
 
+    const [message, setMessage] = useState('');
     const [open, setOpen] = React.useState(false);
+
     const handleClick = () => {
         setOpen(true);
     };
-    const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
+
         setOpen(false);
     };
 
@@ -208,7 +211,8 @@ export default function RegistrationPage() {
                     horizontal: 'center',
                 }}
                 open={open}
-                autoHideDuration={50}
+                autoHideDuration={1500}
+                onClose={handleClose}
                 message={message}
                 action={
                     <React.Fragment>

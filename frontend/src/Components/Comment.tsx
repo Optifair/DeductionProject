@@ -28,10 +28,11 @@ export default function CommentCard({id, content, userId, liked, date, isAuth, u
         setOpen(true);
     };
 
-    const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
+
         setOpen(false);
     };
 
@@ -94,14 +95,15 @@ export default function CommentCard({id, content, userId, liked, date, isAuth, u
                 </Typography>
             </CardContent>
             <Divider/>
-
+            
             <Snackbar
                 anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'center',
                 }}
                 open={open}
-                autoHideDuration={50}
+                autoHideDuration={1500}
+                onClose={handleClose}
                 message="Only the owner of the post can like."
                 action={
                     <React.Fragment>

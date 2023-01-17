@@ -29,7 +29,7 @@ export default function ToastBar() {
                 horizontal: 'center',
             }}
             open={open}
-            autoHideDuration={50}
+            autoHideDuration={1500}
             onClose={handleClose}
             message={message}
             action={

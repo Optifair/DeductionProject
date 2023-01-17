@@ -20,15 +20,12 @@ export default function PasswordChangePage() {
     const params = useParams();
     const key = params.key;
     let login = "";
-    const [message, setMessage] = useState('');
     const navigate = useNavigate();
     const [newPass, setNewPass] = useState('');
     const [newPassIsFocusedYet, setNewPassIsFocusedYet] = useState(false);
     const PASS_REGEXP = /(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/g
 
     const [newPassValid, setNewPassValid] = useState(true);
-
-    const [open, setOpen] = React.useState(false);
 
     const handleNewPassChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNewPass(event.target.value);
@@ -39,13 +36,18 @@ export default function PasswordChangePage() {
             setNewPassValid(false);
         }
     };
+    const [message, setMessage] = useState('');
+    const [open, setOpen] = React.useState(false);
+
     const handleClick = () => {
         setOpen(true);
     };
-    const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
+
         setOpen(false);
     };
 
@@ -110,7 +112,9 @@ export default function PasswordChangePage() {
             }
         }
         if (!checkSuccess) {
-            navigate("/");
+            setTimeout(() => {
+                navigate("/auth")
+            }, 1500);
         }
     }
 
@@ -120,11 +124,14 @@ export default function PasswordChangePage() {
             const isEdit = Boolean(Number(res['isEdit']));
             if (isEdit) {
                 setMessage("You have successfully edit your password!");
-                navigate("/auth");
+
             } else {
                 setMessage("This link is outdated!");
             }
         }
+        setTimeout(() => {
+            navigate("/auth")
+        }, 1500);
         handleClick()
     }
 
@@ -163,7 +170,8 @@ export default function PasswordChangePage() {
                     horizontal: 'center',
                 }}
                 open={open}
-                autoHideDuration={50}
+                autoHideDuration={1500}
+                onClose={handleClose}
                 message={message}
                 action={
                     <React.Fragment>

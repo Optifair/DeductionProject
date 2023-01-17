@@ -18,7 +18,6 @@ const InputDiv = styled('div')(({theme}) => ({
 export default function PasswordResetWindow() {
     const [login, setLogin] = useState('');
     const [loginValid, setLoginValid] = useState(true);
-    const [message, setMessage] = useState('');
     const [loginIsFocusedYet, setLoginIsFocusedYet] = useState(false);
     const EMAIL_REGEXP = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
@@ -32,14 +31,18 @@ export default function PasswordResetWindow() {
         }
     };
 
+    const [message, setMessage] = useState('');
     const [open, setOpen] = React.useState(false);
+
     const handleClick = () => {
         setOpen(true);
     };
-    const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
+
         setOpen(false);
     };
 
@@ -105,7 +108,8 @@ export default function PasswordResetWindow() {
                     horizontal: 'center',
                 }}
                 open={open}
-                autoHideDuration={50}
+                autoHideDuration={1500}
+                onClose={handleClose}
                 message={message}
                 action={
                     <React.Fragment>

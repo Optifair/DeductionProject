@@ -35,13 +35,16 @@ export default function AddCommentForm({post_id, userAvatar, userName, updateTem
     };
 
     const [open, setOpen] = React.useState(false);
+
     const handleClick = () => {
         setOpen(true);
     };
-    const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
             return;
         }
+
         setOpen(false);
     };
 
@@ -97,7 +100,8 @@ export default function AddCommentForm({post_id, userAvatar, userName, updateTem
                     horizontal: 'center',
                 }}
                 open={open}
-                autoHideDuration={50}
+                autoHideDuration={1500}
+                onClose={handleClose}
                 message="Input fields must be filled"
                 action={
                     <React.Fragment>
