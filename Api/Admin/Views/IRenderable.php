@@ -4,5 +4,5 @@ namespace Api\Admin\Views;
 
 interface IRenderable
 {
-    public function render();
+    public static function render();
 }
