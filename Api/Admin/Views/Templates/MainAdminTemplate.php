@@ -56,21 +56,21 @@
 </div>
 
 <div id="Users" class="tabcontent">
-    <?= include "UsersTemplate.php" ?>
+    <?= require "UsersTemplate.php" ?>
 </div>
 
 <div id="Posts" class="tabcontent">
-    <?= include "PostsTemplate.php" ?>
+    <?= require "PostsTemplate.php" ?>
 
 </div>
 
 <div id="Comments" class="tabcontent">
-    <?= include "CommentsTemplate.php" ?>
+    <?= require "CommentsTemplate.php" ?>
 
 </div>
 
 <div id="Marks" class="tabcontent">
-    <?= include "MarksTemplate.php" ?>
+    <?= require "MarksTemplate.php" ?>
 </div>
 
 <script>

@@ -22,7 +22,7 @@
                         <td>
                             <a class="btn btn-danger btn-sm" data-toggle="modal"
                                data-target="#banModal
-                            <?= $value['id'] ?>"><i class="fa fa-ban"></i></a>
+                            <?= $value['id'] ?>"><i class="fa fa-trash"></i></a>
                         </td>
                     </tr> <?php } ?>
                 </thead>
