@@ -13,7 +13,14 @@ class UserRepository extends Repository
         $query->columns(
             'id',
             'name',
-            'login'
+            'login',
+            'password',
+            'salt',
+            'cookie',
+            'avatar',
+            'rating',
+            'pass_reset_code',
+            'isAdmin'
         );
         $users = self::executeQuery($query);
         return $users;
@@ -81,7 +88,8 @@ class UserRepository extends Repository
             'cookie',
             'avatar',
             'rating',
-            'pass_reset_code'
+            'pass_reset_code',
+            'isAdmin'
         );
         $queryResult = self::executeQuery($query);
         $user = [];
