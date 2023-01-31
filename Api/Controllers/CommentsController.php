@@ -22,7 +22,7 @@ class CommentsController extends Controller
     public function addComment()
     {
         self::setCORSHeaders();
-        $authRes = self::checkAuth();
+        $authRes = AuthController::checkAuth();
         if (!empty(file_get_contents('php://input'))) {
             if ($authRes['auth']) {
                 $json = file_get_contents('php://input');

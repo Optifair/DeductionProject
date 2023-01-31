@@ -7,10 +7,29 @@ use Api\Models\Repositories\UserRepository;
 
 class MarksController extends Controller
 {
+
+    public function getMarks()
+    {
+        self::setCORSHeaders();
+        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
+
+            $authRes = AuthController::checkAuth();
+            if ($authRes) {
+                $login = $_COOKIE['login'];
+
+                $perPage = $_GET['limit'] ?? 5;
+                $pageNumber = $_GET['offset'] ?? 0;
+
+                $postsArray['posts'] = MarkRepository::getMarks($login, $perPage, $pageNumber);
+                echo json_encode($postsArray, JSON_PRETTY_PRINT);
+            }
+        }
+    }
+
     public function markPost()
     {
         self::setCORSHeaders();
-        $authRes = self::checkAuth();
+        $authRes = AuthController::checkAuth();
         if (!empty(file_get_contents('php://input'))) {
             if ($authRes['auth']) {
                 $json = file_get_contents('php://input');
@@ -28,24 +47,6 @@ class MarksController extends Controller
                 }
             }
             echo json_encode($authRes, JSON_PRETTY_PRINT);
-        }
-    }
-
-    public function getMarks()
-    {
-        self::setCORSHeaders();
-        if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
-
-            $authRes = self::checkAuth();
-            if ($authRes) {
-                $login = $_COOKIE['login'];
-
-                $perPage = $_GET['limit'] ?? 5;
-                $pageNumber = $_GET['offset'] ?? 0;
-
-                $postsArray['posts'] = MarkRepository::getMarks($login, $perPage, $pageNumber);
-                echo json_encode($postsArray, JSON_PRETTY_PRINT);
-            }
         }
     }
 }

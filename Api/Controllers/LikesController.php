@@ -11,7 +11,7 @@ class LikesController extends Controller
     public function likeComment()
     {
         self::setCORSHeaders();
-        $authRes = self::checkAuth();
+        $authRes = AuthController::checkAuth();
         if (!empty(file_get_contents('php://input'))) {
             $ret = ['owner' => false, 'auth' => $authRes['auth']];
             if ($ret['auth']) {

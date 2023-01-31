@@ -15,7 +15,7 @@ class PostsController extends Controller
         $perPage = $_GET['limit'] ?? 5;
         $pageNumber = $_GET['offset'] ?? 0;
 
-        $authRes = self::checkAuth();
+        $authRes = AuthController::checkAuth();
         if ($authRes['auth']) {
             $login = $_COOKIE['login'];
             $userId = UserRepository::findUserByLogin($login)['id'];
@@ -59,7 +59,7 @@ class PostsController extends Controller
     public function addPost()
     {
         self::setCORSHeaders();
-        $authRes = self::checkAuth();
+        $authRes = AuthController::checkAuth();
         if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
             if ($authRes['auth']) {
 
