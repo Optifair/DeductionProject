@@ -22,10 +22,13 @@ export default function PasswordChangePage() {
     let login = "";
     const navigate = useNavigate();
     const [newPass, setNewPass] = useState('');
+    const [repeatedPass, setRepeatedPass] = useState('');
     const [newPassIsFocusedYet, setNewPassIsFocusedYet] = useState(false);
+    const [repeatedPassIsFocusedYet, setRepeatedPassIsFocusedYet] = useState(false);
     const PASS_REGEXP = /(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/g
 
     const [newPassValid, setNewPassValid] = useState(true);
+    const [repeatedPassValid, setRepeatedPassValid] = useState(true);
 
     const handleNewPassChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNewPass(event.target.value);
@@ -34,6 +37,21 @@ export default function PasswordChangePage() {
             setNewPassValid(true);
         } else {
             setNewPassValid(false);
+        }
+        
+        if (repeatedPass === event.target.value) {
+            setRepeatedPassValid(true);
+        } else {
+            setRepeatedPassValid(false);
+        }
+    };
+    const handleRepeatedPassChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRepeatedPass(event.target.value);
+        setRepeatedPassIsFocusedYet(true);
+        if (newPass === event.target.value) {
+            setRepeatedPassValid(true);
+        } else {
+            setRepeatedPassValid(false);
         }
     };
     const [message, setMessage] = useState('');
@@ -119,19 +137,20 @@ export default function PasswordChangePage() {
     }
 
     async function editPassword() {
-        if (newPassValid) {
+        if (newPassValid && repeatedPassValid && newPassIsFocusedYet && repeatedPassIsFocusedYet) {
             const res = await fetchEditPassword();
             const isEdit = Boolean(Number(res['isEdit']));
             if (isEdit) {
                 setMessage("You have successfully edit your password!");
-
             } else {
                 setMessage("This link is outdated!");
             }
+            setTimeout(() => {
+                navigate("/auth")
+            }, 1500);
+        } else {
+            setMessage("You entered incorrect data");
         }
-        setTimeout(() => {
-            navigate("/auth")
-        }, 1500);
         handleClick()
     }
 
@@ -160,9 +179,23 @@ export default function PasswordChangePage() {
                                    style={{marginLeft: '5%', marginRight: '5%'}}/>
                     </InputDiv>
                 </Box>
-
+                <Typography>Repeat password</Typography>
+                <Box border={2} borderColor={
+                    repeatedPassIsFocusedYet
+                        ?
+                        repeatedPassValid ? 'green' : 'red'
+                        :
+                        'gray'
+                }
+                     borderRadius={'8px'}>
+                    <InputDiv>
+                        <InputBase onChange={handleRepeatedPassChange} type='password'
+                                   style={{marginLeft: '5%', marginRight: '5%'}}/>
+                    </InputDiv>
+                </Box>
                 <Button onClick={editPassword} variant="outlined"
                         style={{border: '1px solid ghostwhite', color: 'ghostwhite'}}> Edit password</Button>
+
             </Stack>
             <Snackbar
                 anchorOrigin={{
