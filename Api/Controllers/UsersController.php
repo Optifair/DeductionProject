@@ -17,47 +17,16 @@ class UsersController extends Controller
             $password = $_POST['pass'];
             $remember = $_POST['rem'] = false;
 
-            $user = UserRepository::findUserByLogin($login);
-            $ret = ['auth' => false];
-            if (!empty($user)) {
-                if (UserRepository::verifyPassword($password, $user['salt'], $user['password'])) {
-                    session_start();
-                    $ret['auth'] = true;
-                    $_SESSION['auth'] = true;
-                    $_SESSION['id'] = $user['id'];
-                    $_SESSION['login'] = $user['login'];
-
-                    $remember = true;
-                    $key = self::generateCookie();
-                    $time = time() + 60 * 30;
-                    if ($remember) {
-                        $time = time() + 60 * 60 * 24 * 30;
-                    }
-
-                    setcookie('login', $user['login'], $time);
-                    setcookie('key', $key, $time);
-                    UserRepository::updateUserCookie($login, $key);
-                }
-            }
-            echo json_encode($ret, JSON_PRETTY_PRINT);
+            echo json_encode(AuthController::authUser($login, $password), JSON_PRETTY_PRINT);
         }
     }
 
-    private function generateCookie()
-    {
-        $cookie = '';
-        $cookieLength = 8;
-        for ($i = 0; $i < $cookieLength; $i++) {
-            $cookie .= chr(mt_rand(33, 126));
-        }
-        return $cookie;
-    }
 
     public function authUserWithCookie()
     {
         self::setCORSHeaders();
         if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
-            $ret = self::checkAuth();
+            $ret = AuthController::checkAuth();
             echo json_encode($ret, JSON_PRETTY_PRINT);
         }
     }
@@ -66,7 +35,7 @@ class UsersController extends Controller
     {
         self::setCORSHeaders();
         if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
-            $authRes = self::checkAuth();
+            $authRes = AuthController::checkAuth();
             if ($authRes) {
                 $login = $_COOKIE['login'];
                 $user = UserRepository::findUserByLogin($login);
@@ -133,7 +102,7 @@ class UsersController extends Controller
                 'isLoginNotTaken' => true
             ];
 
-            $authRes = self::checkAuth();
+            $authRes = AuthController::checkAuth();
             if ($authRes) {
                 $ret['isAuth'] = true;
                 $login = $_COOKIE['login'];
@@ -144,7 +113,7 @@ class UsersController extends Controller
                         $searchedUser = UserRepository::findUserByLogin($newLogin);
                         if (empty($searchedUser)) {
                             UserRepository::updateLogin($login, $newLogin);
-                            setcookie('login', $newLogin, time() + 60 * 60 * 24 * 30);
+                            setcookie('login', $newLogin, time() + 60 * 60 * 24 * 30, '/');
                             $login = $newLogin;
                         } else {
                             $ret['isLoginNotTaken'] = false;
@@ -199,18 +168,7 @@ class UsersController extends Controller
 
     public function logoutUser()
     {
-        self::setCORSHeaders();
-
-        session_start();
-        if (!empty($_SESSION['auth']) and $_SESSION['auth']) {
-            $login = $_SESSION['login'];
-            session_destroy();
-
-            setcookie('login', '', time());
-            setcookie('key', '', time());
-
-            UserRepository::updateUserCookie($login, '');
-        }
+        AuthController::logoutUser();
     }
 
     public function addUser()
