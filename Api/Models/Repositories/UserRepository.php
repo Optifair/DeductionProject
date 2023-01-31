@@ -178,4 +178,35 @@ class UserRepository extends Repository
         $query->where(['login', $login, '=']);
         self::executeQuery($query, false);
     }
+
+    public static function updateSalt($login, $newSalt)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('salt')->values($newSalt);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateIsAdmin($login, $newIsAdmin)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('isAdmin')->values($newIsAdmin);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updatePass_reset_code($login, $newPass_reset_code)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('pass_reset_code')->values($newPass_reset_code);
+        $query->where(['login', $login, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function deleteUser($id)
+    {
+        self::prepareExecution();
+        $query = QO::delete()->table('users')->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
 }

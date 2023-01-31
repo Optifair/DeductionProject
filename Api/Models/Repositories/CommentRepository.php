@@ -86,4 +86,51 @@ class CommentRepository extends Repository
         $query->where(['id', $comment_id, '=']);
         self::executeQuery($query, false);
     }
+
+    public static function deleteComment($id)
+    {
+        self::prepareExecution();
+        $query = QO::delete()->table('comments')->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateLiked($id, $newLiked)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('comments')->columns('liked')->values($newLiked);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateContent($id, $newContent)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('comments')->columns('content')->values($newContent);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updatePost_id($id, $newPost_id)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('comments')->columns('post_id')->values($newPost_id);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateUser_id($id, $newUser_id)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('comments')->columns('user_id')->values($newUser_id);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateDate($id, $newDate)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('comments')->columns('date')->values($newDate);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
 }

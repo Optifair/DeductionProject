@@ -14,6 +14,8 @@ class PostRepository extends Repository
             'id',
             'user_id',
             'title',
+            'content',
+            'image',
             'date'
         );
         $posts = self::executeQuery($query);
@@ -106,6 +108,53 @@ class PostRepository extends Repository
             $content,
             $image
         );
+        self::executeQuery($query, false);
+    }
+
+    public static function deletePost($id)
+    {
+        self::prepareExecution();
+        $query = QO::delete()->table('posts')->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateTitle($id, $newTitle)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('posts')->columns('title')->values($newTitle);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateContent($id, $newContent)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('posts')->columns('content')->values($newContent);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateImage($id, $newImage)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('posts')->columns('image')->values($newImage);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateUser_id($id, $newUser_id)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('posts')->columns('user_id')->values($newUser_id);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateDate($id, $newDate)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('posts')->columns('date')->values($newDate);
+        $query->where(['id', $id, '=']);
         self::executeQuery($query, false);
     }
 }

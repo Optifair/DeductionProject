@@ -77,5 +77,28 @@ class MarkRepository extends Repository
         self::executeQuery($query, false);
     }
 
+    public static function updatePost_id($id, $newPost_id)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('marks')->columns('post_id')->values($newPost_id);
+        $query->where(['mark_id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateUser_id($id, $newUser_id)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('marks')->columns('user_id')->values($newUser_id);
+        $query->where(['mark_id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function updateDate($id, $newDate)
+    {
+        self::prepareExecution();
+        $query = QO::update()->table('marks')->columns('mark_date')->values($newDate);
+        $query->where(['mark_id', $id, '=']);
+        self::executeQuery($query, false);
+    }
 
 }
