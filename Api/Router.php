@@ -31,20 +31,44 @@ class Router
             '/api/editPassword' => ['UsersController@editPassword'],
             '/api/sendPasswordResetLink' => ['UsersController@sendPasswordResetLink'],
             '/api/checkPasswordResetKey' => ['UsersController@checkPasswordResetKey'],
-            '/admin' => ['AdminController@AdTest'],
+        ];
+
+        $admin_urls = [
+            '/admin' => ['RenderController@renderMainPage'],
+            '/admin/authPage' => ['RenderController@renderAuthPage'],
+            '/admin/auth' => ['AuthAdminController@auth'],
+            '/admin/logout' => ['AuthAdminController@logout'],
+            '/admin/users' => ['RenderController@renderUsersPage'],
+            '/admin/posts' => ['RenderController@renderPostsPage'],
+            '/admin/comments' => ['RenderController@renderCommentsPage'],
+            '/admin/marks' => ['RenderController@renderMarksPage'],
+            '/admin/editUser' => ['CrudController@editUser'],
+            '/admin/editMark' => ['CrudController@editMark'],
+            '/admin/editComment' => ['CrudController@editComment'],
+            '/admin/editPost' => ['CrudController@editPost'],
+            '/admin/deleteMark' => ['CrudController@deleteMark'],
+            '/admin/deleteComment' => ['CrudController@deleteComment'],
+            '/admin/deleteUser' => ['CrudController@deleteUser'],
+            '/admin/deletePost' => ['CrudController@deletePost'],
         ];
 
         $availableRoutes = array_keys($urls);
+        $availableAdminRoutes = array_keys($admin_urls);
 
-        if (!in_array($current_link, $availableRoutes)) {
+
+        if (in_array($current_link, $availableRoutes)) {
+            Router::tryRoute($current_link, $urls, "Api\Controllers\\");
+        } else if (in_array($current_link, $availableAdminRoutes)) {
+            Router::tryRoute($current_link, $admin_urls, "Api\Admin\AdminControllers\\");
+        } else {
             header('HTTP/1.0 404 Not found');
             exit;
         }
 
-        Router::tryRoute($current_link, $urls);
+
     }
 
-    private static function tryRoute($current_link, $urls)
+    private static function tryRoute($current_link, $urls, $path_to_controller)
     {
         try {
             foreach ($urls as $index => $url) {
@@ -56,7 +80,7 @@ class Router
                 $className = $routeElement[0];
                 $function = $routeElement[1];
 
-                $class = "Api\Controllers\\$className";
+                $class = $path_to_controller . $className;
                 $object = new $class();
                 $object->$function();
             }
