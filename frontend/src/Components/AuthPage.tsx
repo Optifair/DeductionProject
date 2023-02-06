@@ -88,7 +88,7 @@ export default function AuthPage() {
             .then((data) => {
                 return data
             });
-        return res['auth'];
+        return res;
     }
 
     async function fetchAuth() {
@@ -122,8 +122,9 @@ export default function AuthPage() {
     })
 
     async function authUser() {
-
-        const isAuth = Boolean(Number(await fetchUser()));
+        const res = await fetchUser();
+        const isAuth = Boolean(Number(res['auth']));
+        const isBan = Boolean(Number(res['ban']));
         if (isAuth) {
             if (login !== '' && pass !== '') {
                 navigate("/profile")
@@ -132,7 +133,12 @@ export default function AuthPage() {
                 setMessage("Input fields must be filled");
             }
         } else {
-            setMessage("User not found");
+            if (isBan) {
+                setMessage("User is banned. Check your email for more information");
+
+            } else {
+                setMessage("User not found");
+            }
         }
         handleClick();
     }
