@@ -58,7 +58,7 @@ class UsersController extends Controller
             if (!empty($user)) {
                 $ret['isFound'] = true;
                 $key = UserRepository::createPasswordResetCodeForUser($login);
-                MailSender::sendMail($login, $name, self::frontPath . "/changePassword/" . $key);
+                MailSender::createPasswordResetMail($login, $name, self::frontPath . "/changePassword/" . $key);
             }
 
             echo json_encode($ret, JSON_PRETTY_PRINT);
