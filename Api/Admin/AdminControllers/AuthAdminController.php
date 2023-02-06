@@ -18,7 +18,8 @@ class AuthAdminController
         $auth = AuthController::checkAuth()['auth'];
 
         if ($auth) {
-            if (!UserRepository::findUserByLogin($_COOKIE['login'])['isAdmin']) {
+            $user = UserRepository::findUserByLogin($_COOKIE['login']);
+            if (!$user['is_editor'] && !$user['is_admin']) {
                 $auth = false;
             }
         }
@@ -32,7 +33,8 @@ class AuthAdminController
 
         $auth = AuthController::authUser($login, $password)['auth'];
         if ($auth) {
-            if (UserRepository::findUserByLogin($login)['isAdmin']) {
+            $user = UserRepository::findUserByLogin($login);
+            if ($user['is_editor'] || $user['is_admin']) {
                 header('Location: \admin');
             } else {
                 header('Location: \admin\authPage?error=notFound');
