@@ -20,10 +20,38 @@ class UserRepository extends Repository
             'avatar',
             'rating',
             'pass_reset_code',
-            'isAdmin'
+            'ban_timeout',
+            'is_admin',
+            'is_editor'
         );
         $users = self::executeQuery($query);
         return $users;
+    }
+
+    public static function findUserById($id)
+    {
+        self::prepareExecution();
+        $query = QO::select()->table('users')->where(['id', $id, '=']);
+        $query->columns(
+            'id',
+            'name',
+            'login',
+            'password',
+            'salt',
+            'cookie',
+            'avatar',
+            'rating',
+            'pass_reset_code',
+            'ban_timeout',
+            'is_admin',
+            'is_editor'
+        );
+        $queryResult = self::executeQuery($query);
+        $user = [];
+        if (!empty($queryResult)) {
+            $user = $queryResult[0];
+        }
+        return $user;
     }
 
     public static function addUser($name, $login, $pass)
@@ -89,7 +117,9 @@ class UserRepository extends Repository
             'avatar',
             'rating',
             'pass_reset_code',
-            'isAdmin'
+            'ban_timeout',
+            'is_admin',
+            'is_editor'
         );
         $queryResult = self::executeQuery($query);
         $user = [];
@@ -187,10 +217,10 @@ class UserRepository extends Repository
         self::executeQuery($query, false);
     }
 
-    public static function updateIsAdmin($login, $newIsAdmin)
+    public static function updateIs_editor($login, $newis_editor)
     {
         self::prepareExecution();
-        $query = QO::update()->table('users')->columns('isAdmin')->values($newIsAdmin);
+        $query = QO::update()->table('users')->columns('is_editor')->values($newis_editor);
         $query->where(['login', $login, '=']);
         self::executeQuery($query, false);
     }
@@ -207,6 +237,25 @@ class UserRepository extends Repository
     {
         self::prepareExecution();
         $query = QO::delete()->table('users')->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function banUser($id, $ban_time)
+    {
+        $time = date('Y-m-d H:i:s', (time() + $ban_time * 3600));
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('ban_timeout')->values($time);
+        $query->where(['id', $id, '=']);
+        self::executeQuery($query, false);
+    }
+
+    public static function unbanUser($id)
+    {
+
+        $time = date('Y-m-d H:i:s');
+        self::prepareExecution();
+        $query = QO::update()->table('users')->columns('ban_timeout')->values($time);
+        $query->where(['id', $id, '=']);
         self::executeQuery($query, false);
     }
 }
