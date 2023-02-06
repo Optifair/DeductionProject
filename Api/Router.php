@@ -50,6 +50,8 @@ class Router
             '/admin/deleteComment' => ['CrudController@deleteComment'],
             '/admin/deleteUser' => ['CrudController@deleteUser'],
             '/admin/deletePost' => ['CrudController@deletePost'],
+            '/admin/banUser' => ['CrudController@banUser'],
+            '/admin/unbanUser' => ['CrudController@unbanUser']
         ];
 
         $availableRoutes = array_keys($urls);
