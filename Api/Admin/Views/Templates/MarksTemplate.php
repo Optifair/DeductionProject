@@ -15,7 +15,9 @@
                 use Api\Models\Repositories\MarkRepository;
 
                 $result = MarkRepository::getMarksForAdmin();
-                foreach ($result as $value) { ?>
+                foreach ($result
+
+                         as $value) { ?>
                     <tr>
                         <td><?= $value['mark_id'] ?></td>
                         <td><?= $value['user_id'] ?></td>
@@ -69,6 +71,13 @@
                                                                value="<?= $value['mark_date'] ?>">
                                                     </label>
                                                 </div>
+                                                <div class="form-group">
+                                                    <label>
+                                                        Message to user
+                                                        <textarea name="message" type="text"
+                                                                  class="form-control"></textarea>
+                                                    </label>
+                                                </div>
 
                                                 <div class="modal-footer">
                                                     <button type="submit" name="edit-submit" class="btn btn-primary">
@@ -94,8 +103,29 @@
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
-                                        <div class="modal-footer">
-                                            <form action="/admin/deleteMark?id=<?= $value['mark_id'] ?>" method="post">
+                                        <div class="modal-body">
+                                            <form action="/admin/deleteMark" method="post">
+                                                <div class="form-group">
+                                                    <label>
+                                                        Mark id
+                                                        <input name="mark_id" type="text" class="form-control"
+                                                               value="<?= $value['mark_id'] ?>" readonly>
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>
+                                                        User id
+                                                        <input name="user_id" type="text" class="form-control"
+                                                               value="<?= $value['user_id'] ?>" readonly>
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>
+                                                        Message to user
+                                                        <textarea name="message" type="text"
+                                                                  class="form-control"></textarea>
+                                                    </label>
+                                                </div>
                                                 <button type="submit" name="delete_submit" class="btn btn-danger">
                                                     Delete
                                                 </button>

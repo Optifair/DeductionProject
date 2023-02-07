@@ -86,6 +86,13 @@
                                                                value="<?= $value['date'] ?>">
                                                     </label>
                                                 </div>
+                                                <div class="form-group">
+                                                    <label>
+                                                        Message to user
+                                                        <textarea name="message" type="text"
+                                                                  class="form-control"></textarea>
+                                                    </label>
+                                                </div>
 
                                                 <div class="modal-footer">
                                                     <button type="submit" name="edit-submit" class="btn btn-primary">
@@ -111,8 +118,29 @@
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
-                                        <div class="modal-footer">
-                                            <form action="/admin/deleteComment?id=<?= $value['id'] ?>" method="post">
+                                        <div class="modal-body">
+                                            <form action="/admin/deleteComment" method="post">
+                                                <div class="form-group">
+                                                    <label>
+                                                        Comment id
+                                                        <input name="id" type="text" class="form-control"
+                                                               value="<?= $value['id'] ?>" readonly>
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>
+                                                        User id
+                                                        <input name="user_id" type="text" class="form-control"
+                                                               value="<?= $value['user_id'] ?>" readonly>
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>
+                                                        Message to user
+                                                        <textarea name="message" type="text"
+                                                                  class="form-control"></textarea>
+                                                    </label>
+                                                </div>
                                                 <button type="submit" name="delete_submit" class="btn btn-danger">
                                                     Delete
                                                 </button>
