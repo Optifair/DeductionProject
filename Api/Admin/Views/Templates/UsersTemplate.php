@@ -13,7 +13,8 @@
                     <th>Avatar</th>
                     <th>Rating</th>
                     <th>Pass_reset_code</th>
-                    <th>isAdmin</th>
+                    <th>Ban_timeout</th>
+                    <th>is_editor</th>
                     <th>Actions</th>
                 </tr>
                 <?php
@@ -32,12 +33,15 @@
                         <td><?= $value['avatar'] ?></td>
                         <td><?= $value['rating'] ?></td>
                         <td><?= $value['pass_reset_code'] ?></td>
-                        <td><?= $value['isAdmin'] ?></td>
+                        <td><?= $value['ban_timeout'] ?></td>
+                        <td><?= $value['is_editor'] ?></td>
                         <td>
                             <a href="?edit=<?= $value['id'] ?>" class="btn btn-success btn-sm" data-toggle="modal"
                                data-target="#editModal<?= $value['id'] ?>"><i class="fa fa-edit"></i></a>
                             <a href="?delete=<?= $value['id'] ?>" class="btn btn-danger btn-sm" data-toggle="modal"
                                data-target="#deleteModal<?= $value['id'] ?>"><i class="fa fa-trash"></i></a>
+                            <a href="?ban=<?= $value['id'] ?>" class="btn btn-danger btn-sm" data-toggle="modal"
+                               data-target="#banModal<?= $value['id'] ?>"><i class="fa fa-ban"></i></a>
 
 
                             <!-- Modal Edit-->
@@ -54,6 +58,13 @@
                                         </div>
                                         <div class="modal-body">
                                             <form action="/admin/editUser" method="post">
+                                                <div class="form-group">
+                                                    <label>
+                                                        User id
+                                                        <input name="id" type="text" class="form-control"
+                                                               value="<?= $value['id'] ?>" readonly>
+                                                    </label>
+                                                </div>
                                                 <div class="form-group">
                                                     <label>
                                                         Key login
@@ -119,9 +130,16 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label>
-                                                        Is Admin
-                                                        <input name="isAdmin" type="text" class="form-control"
-                                                               value="<?= $value['isAdmin'] ?>">
+                                                        Ban timeout
+                                                        <input name="pass_reset_code" type="text" class="form-control"
+                                                               value="<?= $value['ban_timeout'] ?>" readonly>
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>
+                                                        Is Editor
+                                                        <input name="is_editor" type="text" class="form-control"
+                                                               value="<?= $value['is_editor'] ?>">
                                                     </label>
                                                 </div>
                                                 <div class="form-group">
@@ -180,6 +198,61 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Modal Ban-->
+                            <div class="modal fade" id="banModal<?= $value['id'] ?>" tabindex="-1" role="dialog"
+                                 aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content shadow">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Ban user
+                                                ID № <?= $value['id'] ?>?</h5>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="/admin/banUser" method="post">
+                                                <div class="form-group">
+                                                    <label>
+                                                        User id
+                                                        <input name="id" type="text" class="form-control"
+                                                               value="<?= $value['id'] ?>" readonly>
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>
+                                                        Ban time in hours
+                                                        <input name="ban_time" type="number"
+                                                               class="form-control">
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>
+                                                        Message to user
+                                                        <textarea name="message" type="text"
+                                                                  class="form-control"></textarea>
+                                                    </label>
+                                                </div>
+                                                <button type="submit" name="ban_submit" class="btn btn-danger">
+                                                    Ban
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="/admin/unbanUser" method="post">
+                                                <input name="id" type="text" class="form-control"
+                                                       value="<?= $value['id'] ?>" hidden>
+                                                <button type="submit" name="unban_submit" class="btn btn-danger">
+                                                    Unban
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </td>
                     </tr> <?php } ?>
                 </thead>
